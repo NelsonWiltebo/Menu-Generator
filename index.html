@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+    <title>Wiltebo</title>
+</head>
+
+<body>
+    <nav>
+        <ul class="nav-link">
+            <li><button>File</button></li>
+            <li><button>Edit</button></li>
+            <li><button>Image</button></li>
+        </ul>
+    </nav>
+    <div id="main">
+        <div id="inventory">
+            <div id="inventory-texture">
+                <embed id="inventoryEmbed" src="images/inventory.svg">
+            </div>
+            <div id="item_slots_container">
+
+            </div>
+        </div>
+        <div class="sidebar left-sidebar">
+            <div class="container">
+                <h2>Menu Specs</h2>
+                <hr>
+                <label for="name_input">Name<br></label>
+                <input type="text" id="name_input" name="name_input" placeholder="Enter name" oninput="updateMenuName()"
+                    maxlength="50">
+                <br>
+                <label for="slots_input">Slots<br></label>
+                <input type="number" id="slots_input" name="slots_input" placeholder="Enter amount of slots" min="9" step="9" max="54">
+                <p class="error_message" id="slots_error">
+                    <i><embed src="images/error_icon.svg"></i>
+                    <span>Error</span>
+                </p>
+            </div>
+            <div class="container" id="item_browser" onclick="loadItemImages()">
+                <h2>Item Browser</h2>
+                <hr>
+                <div id="item_container">
+
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar right-sidebar">
+            <div class="container">
+                <h2>Slot</h2>
+                <hr>
+                <label for="title_input">Item Title<br></label>
+                <input type="text" id="title_input" name="title_input" placeholder="Enter title" oninput=""
+                    maxlength="50">
+                <br>
+                <label for="amount_input">Amount<br></label>
+                <input type="number" id="amount_input" name="amount_input" placeholder="Enter item amount" oninput=""
+                    min="1" max="64">
+                <br>
+                <label for="lore_input">Lore</label>
+                <textarea name="lore_input" id="lore_input" placeholder="Enter lore"></textarea>
+                <br>
+                <div id="input_checkboxes">
+                    <div>
+                        <label for="hide_attributes_input">Hide Attributes</label>
+                        <input type="checkbox" name="hide_attributes_input" id="hide_attributes">
+                    </div>
+                    <div>
+                        <label for="glint_input">Glint</label>
+                        <input type="checkbox" name="glint_input" id="glint_input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="javascript/index.js"></script>
+</body>
+
+</html>
