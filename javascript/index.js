@@ -2,7 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     var inventory = document.getElementById('inventory-texture');
     inventory.querySelector('embed').addEventListener('load', () => {
-        setupMenuSlotListener()
+        setupListener()
         setInventoryRows(1)
         setMenuName("Menu")
     });
@@ -44,14 +44,6 @@ function loadItemImages() {
         )
 }
 
-function addInventoryRows(amount) {
-    
-}
-
-function removeInventoryRows(amount) {
-
-}
-
 function setInventoryRows(amount) {
     var inventory = document.getElementById('inventory');
     var embed = inventory.querySelector('embed');
@@ -78,7 +70,7 @@ function setInventoryRows(amount) {
 
         svg.appendChild(newRow);
     }
-    moveSvgGroupTo(bottom_border, svg.getBBox().x, svg.getBBox().y + top_border.getBBox().height + item_row.getBBox().height * amount - 2);
+    moveSvgGroupTo(bottom_border, svg.getBBox().x, svg.getBBox().y + top_border.getBBox().height + item_row.getBBox().height * svg.querySelectorAll('#item_row').length - 2);
 
     let svgWidth = parseFloat(svg.getAttribute('width'));
     let newHeight = svg.getBBox().height;
@@ -88,10 +80,9 @@ function setInventoryRows(amount) {
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
 
     addItemSlots();
-    for (let i = 0; i < amount * 9; i++) {
+    for (let i = 0; i < item_slots.length; i++) {
         document.getElementById('item_slots_container').removeChild(item_slots[i]);
     }
-    console.log(item_slots.length)
 }
 
 function addItemSlots() {
@@ -199,33 +190,19 @@ function updateMenuSlots() {
     var errorText = document.querySelector('#slots_error span');
     if (value < 9) {
         errorText.innerHTML = "Please provide a number larger than 8"
-        return false;
+        return;
     } else if (value > 54) {
         errorText.innerHTML = "Please provide a number smaller than 55"
-        return false;
+        return;
     } else if (value % 9 != 0) {
         errorText.innerHTML = "Please provide a multiple of 9"
-        return false;
+        return;
     }
-    return true;
+    setInventoryRows(value / 9)
 }
 
-function setupMenuSlotListener() {
+function setupListener() {
     var input = document.getElementById('slots_input');
 
-    let previousValue = parseFloat(input.value);
-
-    input.addEventListener('input', function () {
-        if (updateMenuSlots()) {
-            const currentValue = parseFloat(input.value);
-
-            if (currentValue > previousValue) {
-                setInventoryRows(currentValue / 9)
-            } else if (currentValue < previousValue) {
-                setInventoryRows(currentValue / 9)
-            }
-
-            previousValue = currentValue;
-        }
-    });
+    input.addEventListener('input', updateMenuSlots);
 }
