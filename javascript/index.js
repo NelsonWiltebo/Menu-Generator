@@ -3,7 +3,17 @@ document.addEventListener('DOMContentLoaded', () => {
     var inventory = document.getElementById('inventory-texture');
     inventory.querySelector('embed').addEventListener('load', () => {
         setupListener()
-        setInventoryRows(1)
+        setInventorySlots(9)
+
+        var inventory = document.getElementById('inventory');
+        var embed = inventory.querySelector('embed');
+
+        var svgDoc = embed.getSVGDocument();
+
+        var svg = svgDoc.querySelector('svg');
+        var item_row = svg.querySelector('.item_row');
+
+        addItemSlots(item_row.querySelectorAll('foreignObject'));
         setMenuName("Menu")
     });
 
@@ -44,33 +54,44 @@ function loadItemImages() {
         )
 }
 
-function setInventoryRows(amount) {
+function setInventorySlots(amount) {
     var inventory = document.getElementById('inventory');
     var embed = inventory.querySelector('embed');
 
     var svgDoc = embed.getSVGDocument();
 
     var svg = svgDoc.querySelector('svg');
-    var item_row = svg.getElementById('item_row');
+    var item_row = svg.querySelector('.item_row');
 
     var bottom_border = svg.getElementById('bottom_border')
     var top_border = svg.getElementById('top_border');
 
-    var item_rows = svg.querySelectorAll('#item_row');
-    var item_slots = inventory.querySelectorAll('.item_slot');
+    var item_rows = svg.querySelectorAll('.item_row');
 
-    for (let i = 1; i < item_rows.length; i++) {
-        svg.removeChild(item_rows[i]);
+    let previousRowsAmt = item_rows.length;
+    let rowsDiff = amount / 9 - previousRowsAmt;
+    console.log('pre: ' + previousRowsAmt)
+    console.log('diff: ' + rowsDiff)
+    console.log('amt: ' + amount / 9)
+
+    if(rowsDiff > 0) {
+        for (let i = 1; i < rowsDiff + 1; i++) {
+            var newRow = item_row.cloneNode(true);
+    
+            moveSvgGroupTo(newRow, 0, item_row.getBBox().y + 2 + item_row.getBBox().height * (svg.querySelectorAll('.item_row').length - 1));
+    
+            svg.appendChild(newRow);
+
+            addItemSlots(newRow.querySelectorAll('foreignObject'));
+        }
+    } else if(rowsDiff < 0) {
+        let slot_rows = document.querySelectorAll('.slot-row')
+        for (let i = amount / 9; i < item_rows.length; i++) {
+            svg.removeChild(item_rows[i]);
+            slot_rows[i].remove();
+        }
     }
-
-    for (let i = 1; i < amount; i++) {
-        var newRow = item_row.cloneNode(true);
-
-        moveSvgGroupTo(newRow, 0, item_row.getBBox().y + 2 + item_row.getBBox().height * (i - 1));
-
-        svg.appendChild(newRow);
-    }
-    moveSvgGroupTo(bottom_border, svg.getBBox().x, svg.getBBox().y + top_border.getBBox().height + item_row.getBBox().height * svg.querySelectorAll('#item_row').length - 2);
+    moveSvgGroupTo(bottom_border, svg.getBBox().x, svg.getBBox().y + top_border.getBBox().height + item_row.getBBox().height * svg.querySelectorAll('.item_row').length - 2);
 
     let svgWidth = parseFloat(svg.getAttribute('width'));
     let newHeight = svg.getBBox().height;
@@ -78,31 +99,19 @@ function setInventoryRows(amount) {
 
     // Update the viewBox to accommodate the new height
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
-
-    addItemSlots();
-    for (let i = 0; i < item_slots.length; i++) {
-        document.getElementById('item_slots_container').removeChild(item_slots[i]);
-    }
 }
 
-function addItemSlots() {
-    var inventory = document.getElementById('inventory');
-    var embed = inventory.querySelector('embed');
-
-    var svgDoc = embed.getSVGDocument();
-
-    var svg = svgDoc.querySelector('svg');
-
-    var item_slots = svg.querySelectorAll('foreignObject');
-
-    item_slots.forEach(slot => {
+function addItemSlots(foreignObjects) {
+    const row = document.createElement('div');
+    row.classList.add('slot-row');
+    foreignObjects.forEach(foreignObject => {
         const div = document.createElement('div');
         div.classList.add('item_slot');
         div.style.position = 'absolute';
-        div.style.left = slot.getBoundingClientRect().x + 'px';
-        div.style.top = slot.getBoundingClientRect().y + 'px';
-        div.style.width = slot.getBoundingClientRect().width + 'px';
-        div.style.height = slot.getBoundingClientRect().height + 'px';
+        div.style.left = foreignObject.getBoundingClientRect().x + 'px';
+        div.style.top = foreignObject.getBoundingClientRect().y + 'px';
+        div.style.width = foreignObject.getBoundingClientRect().width + 'px';
+        div.style.height = foreignObject.getBoundingClientRect().height + 'px';
 
         div.addEventListener('click', itemSlotClick);
 
@@ -120,8 +129,9 @@ function addItemSlots() {
             div.appendChild(draggedElement);
         });
 
-        document.getElementById('item_slots_container').appendChild(div);
+        row.appendChild(div);
     });
+    document.getElementById('item_slots_container').appendChild(row);
 }
 
 function itemSlotClick() {
@@ -173,16 +183,6 @@ function setMenuName(value) {
     textElement.textContent = value;
 }
 
-setMenuName("Menu");
-
-function keyDown() {
-    console.log('key down')
-}
-
-function keyUp() {
-    console.log('key up')
-}
-
 function updateMenuSlots() {
     var input = document.getElementById('slots_input');
     var value = input.value;
@@ -198,7 +198,7 @@ function updateMenuSlots() {
         errorText.innerHTML = "Please provide a multiple of 9"
         return;
     }
-    setInventoryRows(value / 9)
+    setInventorySlots(value)
 }
 
 function setupListener() {

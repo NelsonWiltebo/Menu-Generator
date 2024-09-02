@@ -1,7 +1,7 @@
 <svg width="360" height="88" viewBox="0 0 360 88" fill="none" xmlns="http://www.w3.org/2000/svg">
 
 <!-- Item row -->
-<g id="item_row">
+<g class="item_row">
 
 <rect x="4" y="34" width="2" height="36" fill="black"/>
 <rect x="354" y="34" width="2" height="36" fill="black"/>
