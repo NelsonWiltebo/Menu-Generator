@@ -1,6 +1,6 @@
 @font-face {
-    font-family: "Minecraft Regular";
-    src: url('../fonts/minecraft_font.ttf');
+    font-family: 'Minecraft Regular', sans-serif;
+    src: url('../fonts/minecraft_font.ttf') format('truetype');
 }
 
 * {

@@ -113,7 +113,10 @@ function addItemSlots(foreignObjects) {
         div.style.width = foreignObject.getBoundingClientRect().width + 'px';
         div.style.height = foreignObject.getBoundingClientRect().height + 'px';
 
-        div.addEventListener('click', itemSlotClick);
+        const amount = document.createElement('div');
+        amount.classList.add('item-slot-amount');
+
+        div.addEventListener('click', (e) => itemSlotClick(e.target));
 
         div.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -129,14 +132,20 @@ function addItemSlots(foreignObjects) {
             div.appendChild(draggedElement);
         });
 
+        div.appendChild(amount);
         row.appendChild(div);
     });
     document.getElementById('item_slots_container').appendChild(row);
 }
 
-function itemSlotClick() {
+function itemSlotClick(target) {
+    document.querySelectorAll('.active-slot').forEach(element => {
+        element.classList.remove('active-slot');
+    })
+    target.classList.add('active-slot');
     var right_sidebar = document.querySelector('.right-sidebar');
     right_sidebar.style.display = "grid";
+    console.log(target);
 }
 
 function moveSvgGroupTo(group, targetX, targetY) {
@@ -201,8 +210,33 @@ function updateMenuSlots() {
     setInventorySlots(value)
 }
 
-function setupListener() {
-    var input = document.getElementById('slots_input');
+function updateItemAmount() {
+    var input = document.getElementById('amount_input');
+    var value = input.value;
 
-    input.addEventListener('input', updateMenuSlots);
+    var errorText = document.querySelector('#item_amount_error span');
+    if (value < 1 && value != '') {
+        errorText.innerHTML = "Please provide a number larger than 0"
+        return;
+    } else if (value > 64 && value != '') {
+        errorText.innerHTML = "Please provide a number smaller than 65"
+        return;
+    }
+    setItemAmount(document.querySelector('.active-slot'), value);
+}
+
+function setItemAmount(element, amount) {
+    if(amount == 1 || amount == '') {
+        element.innerHTML = '';
+    } else {
+        element.innerHTML = amount;
+    }
+}
+
+function setupListener() {
+    var slots_input = document.getElementById('slots_input');
+    var item_amount_input = document.getElementById('amount_input');
+
+    slots_input.addEventListener('input', updateMenuSlots);
+    item_amount_input.addEventListener('input', updateItemAmount);
 }
