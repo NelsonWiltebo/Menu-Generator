@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
+    <link rel="stylesheet" type="text/css" href="fonts/font-faces.css">
     <title>Wiltebo</title>
 </head>
 
@@ -28,7 +29,9 @@
         </div>
         <div class="sidebar left-sidebar">
             <div class="container">
-                <h2>Menu Specs</h2>
+                <div class="container-header">
+                    <h2>Menu Specs</h2>
+                </div>
                 <hr>
                 <label for="name_input">Name<br></label>
                 <input type="text" id="name_input" name="name_input" placeholder="Enter name" oninput="updateMenuName()"
@@ -42,7 +45,9 @@
                 </p>
             </div>
             <div class="container" id="item_browser" onclick="loadItemImages()">
-                <h2>Item Browser</h2>
+                <div class="container-header">
+                    <h2>Item Browser</h2>
+                </div>
                 <hr>
                 <div id="item_container">
 
@@ -51,8 +56,11 @@
         </div>
 
         <div class="sidebar right-sidebar">
-            <div class="container">
-                <h2>Slot</h2>
+            <div class="container" id="slot_customizer">
+                <div class="container-header">
+                    <h2 class="slot_customizer-title">Slot</h2>
+                    <i onclick="closeSlotCustomizer()"><embed src="images/close_icon.svg"></i>
+                </div>
                 <hr>
                 <label for="title_input">Item Title<br></label>
                 <input type="text" id="title_input" name="title_input" placeholder="Enter title" oninput=""
@@ -79,6 +87,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="pop-up-error">
+            <embed src="images/error_icon.svg">
+            <span>Error</span>
         </div>
     </div>
     <script src="javascript/index.js"></script>

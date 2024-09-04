@@ -74,17 +74,17 @@ function setInventorySlots(amount) {
     console.log('diff: ' + rowsDiff)
     console.log('amt: ' + amount / 9)
 
-    if(rowsDiff > 0) {
+    if (rowsDiff > 0) {
         for (let i = 1; i < rowsDiff + 1; i++) {
             var newRow = item_row.cloneNode(true);
-    
+
             moveSvgGroupTo(newRow, 0, item_row.getBBox().y + 2 + item_row.getBBox().height * (svg.querySelectorAll('.item_row').length - 1));
-    
+
             svg.appendChild(newRow);
 
             addItemSlots(newRow.querySelectorAll('foreignObject'));
         }
-    } else if(rowsDiff < 0) {
+    } else if (rowsDiff < 0) {
         let slot_rows = document.querySelectorAll('.slot-row')
         for (let i = amount / 9; i < item_rows.length; i++) {
             svg.removeChild(item_rows[i]);
@@ -112,8 +112,9 @@ function addItemSlots(foreignObjects) {
         div.style.top = foreignObject.getBoundingClientRect().y + 'px';
         div.style.width = foreignObject.getBoundingClientRect().width + 'px';
         div.style.height = foreignObject.getBoundingClientRect().height + 'px';
+        div.dataset.amount = '';
 
-        const amount = document.createElement('div');
+        const amount = document.createElement('p');
         amount.classList.add('item-slot-amount');
 
         div.addEventListener('click', (e) => itemSlotClick(e.target));
@@ -138,14 +139,45 @@ function addItemSlots(foreignObjects) {
     document.getElementById('item_slots_container').appendChild(row);
 }
 
+let timeOut;
+
+function showPopUpError(text) {
+    if (timeOut) {
+        clearTimeout(timeOut);
+    }
+    const errorWindow = document.getElementById('pop-up-error');
+    errorWindow.querySelector('span').innerHTML = text;
+    errorWindow.classList.remove('closing');
+    errorWindow.classList.add('open');
+    timeOut = setTimeout(() => {
+        errorWindow.classList.remove('open');
+        errorWindow.classList.add('closing');
+    }, 2000);
+}
+
 function itemSlotClick(target) {
+    if (!target.querySelector('img')) {
+        showPopUpError('Item slot contains no item')
+        closeSlotCustomizer();
+        return;
+    }
     document.querySelectorAll('.active-slot').forEach(element => {
         element.classList.remove('active-slot');
     })
     target.classList.add('active-slot');
+    openSlotCustomizer(target);
+}
+
+function openSlotCustomizer(target) {
     var right_sidebar = document.querySelector('.right-sidebar');
     right_sidebar.style.display = "grid";
-    console.log(target);
+    right_sidebar.querySelector('#amount_input').value = target.dataset.amount;
+}
+
+function closeSlotCustomizer() {
+    var right_sidebar = document.querySelector('.right-sidebar');
+    right_sidebar.style.display = "none";
+    right_sidebar.querySelector('#amount_input').value = '';
 }
 
 function moveSvgGroupTo(group, targetX, targetY) {
@@ -189,7 +221,7 @@ function setMenuName(value) {
     var svg = svgDoc.querySelector('svg');
 
     var textElement = svg.getElementById('menu_name');
-    if(value != '') {
+    if (value != '') {
         textElement.textContent = value;
     } else {
         textElement.textContent = 'Menu';
@@ -230,11 +262,12 @@ function updateItemAmount() {
 }
 
 function setItemAmount(element, amount) {
-    if(amount == 1 || amount == '') {
+    if (amount == 1 || amount == '') {
         element.innerHTML = '';
     } else {
         element.innerHTML = amount;
     }
+    element.parentElement.dataset.amount = amount;
 }
 
 function setupListener() {
