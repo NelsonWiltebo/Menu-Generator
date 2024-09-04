@@ -189,7 +189,11 @@ function setMenuName(value) {
     var svg = svgDoc.querySelector('svg');
 
     var textElement = svg.getElementById('menu_name');
-    textElement.textContent = value;
+    if(value != '') {
+        textElement.textContent = value;
+    } else {
+        textElement.textContent = 'Menu';
+    }
 }
 
 function updateMenuSlots() {
@@ -222,7 +226,7 @@ function updateItemAmount() {
         errorText.innerHTML = "Please provide a number smaller than 65"
         return;
     }
-    setItemAmount(document.querySelector('.active-slot'), value);
+    setItemAmount(document.querySelector('.active-slot').querySelector('.item-slot-amount'), value);
 }
 
 function setItemAmount(element, amount) {

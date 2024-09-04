@@ -176,7 +176,7 @@
 <rect x="350" y="4" width="2" height="2" fill="#C6C6C6"/>
 <rect x="350" y="6" width="4" height="28" fill="#555555"/>
 
-<text x="20" y="26" font-size="20" font-family="Minecraft Regular" fill="#3F3F3F" id="menu_name" style="user-select: none;">
+<text x="20" y="26" font-size="16" font-family="Minecraft Regular" fill="#3F3F3F" id="menu_name" style="user-select: none;">
 Large Chest
 </text>
 
