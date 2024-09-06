@@ -23,6 +23,34 @@
 
 </foreignObject>
 
+<rect x="54" y="34" width="2" height="34" fill="#373737"/>
+<rect x="56" y="34" width="32" height="2" fill="#373737"/>
+<rect x="88" y="34" width="2" height="2" fill="#8B8B8B"/>
+<rect x="88" y="36" width="2" height="34" fill="white"/>
+<rect x="56" y="68" width="32" height="2" fill="white"/>
+<rect x="54" y="68" width="2" height="2" fill="#8B8B8B"/>
+<rect x="56" y="36" width="32" height="32" fill="#8B8B8B"/>
+
+<foreignObject x="56" y="36" width="32" height="32">
+
+
+
+</foreignObject>
+
+<rect x="90" y="34" width="2" height="34" fill="#373737"/>
+<rect x="92" y="34" width="32" height="2" fill="#373737"/>
+<rect x="124" y="34" width="2" height="2" fill="#8B8B8B"/>
+<rect x="124" y="36" width="2" height="34" fill="white"/>
+<rect x="92" y="68" width="32" height="2" fill="white"/>
+<rect x="90" y="68" width="2" height="2" fill="#8B8B8B"/>
+<rect x="92" y="36" width="32" height="32" fill="#8B8B8B"/>
+
+<foreignObject x="92" y="36" width="32" height="32">
+
+
+
+</foreignObject>
+
 <rect x="126" y="34" width="2" height="34" fill="#373737"/>
 <rect x="128" y="34" width="32" height="2" fill="#373737"/>
 <rect x="160" y="34" width="2" height="2" fill="#8B8B8B"/>
@@ -103,34 +131,6 @@
 <rect x="308" y="36" width="32" height="32" fill="#8B8B8B"/>
 
 <foreignObject x="308" y="36" width="32" height="32">
-
-
-
-</foreignObject>
-
-<rect x="90" y="34" width="2" height="34" fill="#373737"/>
-<rect x="92" y="34" width="32" height="2" fill="#373737"/>
-<rect x="124" y="34" width="2" height="2" fill="#8B8B8B"/>
-<rect x="124" y="36" width="2" height="34" fill="white"/>
-<rect x="92" y="68" width="32" height="2" fill="white"/>
-<rect x="90" y="68" width="2" height="2" fill="#8B8B8B"/>
-<rect x="92" y="36" width="32" height="32" fill="#8B8B8B"/>
-
-<foreignObject x="92" y="36" width="32" height="32">
-
-
-
-</foreignObject>
-
-<rect x="54" y="34" width="2" height="34" fill="#373737"/>
-<rect x="56" y="34" width="32" height="2" fill="#373737"/>
-<rect x="88" y="34" width="2" height="2" fill="#8B8B8B"/>
-<rect x="88" y="36" width="2" height="34" fill="white"/>
-<rect x="56" y="68" width="32" height="2" fill="white"/>
-<rect x="54" y="68" width="2" height="2" fill="#8B8B8B"/>
-<rect x="56" y="36" width="32" height="32" fill="#8B8B8B"/>
-
-<foreignObject x="56" y="36" width="32" height="32">
 
 
 

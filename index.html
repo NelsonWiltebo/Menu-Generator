@@ -33,12 +33,13 @@
                     <h2>Menu Specs</h2>
                 </div>
                 <hr>
-                <label for="name_input">Name<br></label>
-                <input type="text" id="name_input" name="name_input" placeholder="Enter name" oninput="updateMenuName()"
+                <label for="title_input">Title<br></label>
+                <input type="text" id="title_input" name="title_input" placeholder="Enter title" oninput="updateMenuTitle()"
                     maxlength="50">
                 <br>
                 <label for="slots_input">Slots<br></label>
-                <input type="number" id="slots_input" name="slots_input" placeholder="Enter amount of slots" min="9" step="9" max="54">
+                <input type="number" id="slots_input" name="slots_input" placeholder="Enter amount of slots" min="9"
+                    step="9" max="54">
                 <p class="error_message" id="slots_error">
                     <i><embed src="images/error_icon.svg"></i>
                     <span>Error</span>
@@ -62,12 +63,12 @@
                     <i onclick="closeSlotCustomizer()"><embed src="images/close_icon.svg"></i>
                 </div>
                 <hr>
-                <label for="title_input">Item Title<br></label>
-                <input type="text" id="title_input" name="title_input" placeholder="Enter title" oninput=""
-                    maxlength="50">
+                <label for="name_input">Item Name<br></label>
+                <input type="text" id="name_input" name="name_input" placeholder="Enter name" maxlength="50">
                 <br>
                 <label for="amount_input">Amount<br></label>
-                <input type="number" id="amount_input" name="amount_input" placeholder="Enter item amount" min="1" max="64">
+                <input type="number" id="amount_input" name="amount_input" placeholder="Enter item amount" min="1"
+                    max="64">
                 <p class="error_message" id="item_amount_error">
                     <i><embed src="images/error_icon.svg"></i>
                     <span>Error</span>
@@ -85,6 +86,10 @@
                         <label for="glint_input">Glint</label>
                         <input type="checkbox" name="glint_input" id="glint_input">
                     </div>
+                    <div>
+                        <label for="hide_tooltip">Hide Tooltip</label>
+                        <input type="checkbox" name="hide_tooltip" id="hide_tooltip">
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,7 +97,18 @@
             <embed src="images/error_icon.svg">
             <span>Error</span>
         </div>
+        <div id="tooltip-div">
+            <p id="item_name">
+
+            </p>
+            <div id="item_lore">
+                <p class="lore_row">
+
+                </p>
+            </div>
+        </div>
     </div>
+
     <script src="javascript/index.js"></script>
 </body>
 

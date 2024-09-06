@@ -70,9 +70,6 @@ function setInventorySlots(amount) {
 
     let previousRowsAmt = item_rows.length;
     let rowsDiff = amount / 9 - previousRowsAmt;
-    console.log('pre: ' + previousRowsAmt)
-    console.log('diff: ' + rowsDiff)
-    console.log('amt: ' + amount / 9)
 
     if (rowsDiff > 0) {
         for (let i = 1; i < rowsDiff + 1; i++) {
@@ -113,14 +110,34 @@ function addItemSlots(foreignObjects) {
         div.style.width = foreignObject.getBoundingClientRect().width + 'px';
         div.style.height = foreignObject.getBoundingClientRect().height + 'px';
         div.dataset.amount = '';
+        div.dataset.name = '';
+        div.dataset.lore = '[""]';
+        setItemName(div, 'Icon');
 
-        const amount = document.createElement('p');
+        const amount = document.createElement('span');
         amount.classList.add('item-slot-amount');
 
         div.addEventListener('click', (e) => itemSlotClick(e.target));
 
         div.addEventListener('dragover', (e) => {
             e.preventDefault();
+        });
+        div.addEventListener('mousemove', (e) => {
+            if (e.target.querySelector('img') && e.target.dataset.name != '') {
+                let tooltip = document.getElementById('tooltip-div');
+                let dx = tooltip.parentElement.getBoundingClientRect().x;
+                let dy = tooltip.parentElement.getBoundingClientRect().y;
+
+                tooltip.style.display = 'block';
+                tooltip.style.top = e.clientY - 48 - dy + "px";
+                tooltip.style.left = e.clientX - dx + 24 + "px";
+            }
+        });
+        div.addEventListener('mouseleave', (e) => {
+            if (e.target.querySelector('img') && e.target.dataset.name != '') {
+                let tooltip = document.getElementById('tooltip-div');
+                tooltip.style.display = 'none';
+            }
         });
 
         div.addEventListener('drop', (e) => {
@@ -136,7 +153,14 @@ function addItemSlots(foreignObjects) {
         div.appendChild(amount);
         row.appendChild(div);
     });
-    document.getElementById('item_slots_container').appendChild(row);
+    let slots_container = document.getElementById('item_slots_container');
+    slots_container.appendChild(row);
+
+    let item_slots = Array.from(slots_container.querySelectorAll('.item_slot'));
+    item_slots.forEach(slot => {
+        slot.dataset.slot = item_slots.indexOf(slot);
+    });
+
 }
 
 let timeOut;
@@ -206,7 +230,7 @@ function moveSvgGroupTo(group, targetX, targetY) {
     });
 }
 
-function updateMenuName() {
+function updateMenuTitle() {
     var input = document.querySelector('.left-sidebar #name_input')
     var value = input.value;
 
@@ -270,10 +294,46 @@ function setItemAmount(element, amount) {
     element.parentElement.dataset.amount = amount;
 }
 
+function setItemLore(element, lore) {
+    let tooltip = document.getElementById('tooltip-div');
+    let oldItem_lore = tooltip.querySelector('#item_lore');
+    let newItem_lore = document.createElement('div');
+    newItem_lore.id = 'item_lore';
+
+    element.dataset.lore = JSON.stringify(lore.split('\n'));
+    let array = JSON.parse(element.dataset.lore);
+    array.forEach(row => {
+        let p = document.createElement('p');
+        p.classList.add('lore_row');
+        p.innerHTML = row;
+        newItem_lore.appendChild(p);
+    });
+    oldItem_lore.replaceWith(newItem_lore);
+}
+
+function setItemName(element, name) {
+    if (name == '') {
+        name = 'Icon';
+    }
+    let tooltip = document.getElementById('tooltip-div');
+    let item_name = tooltip.querySelector('#item_name');
+
+    item_name.innerHTML = name;
+    element.dataset.name = name;
+}
+
 function setupListener() {
     var slots_input = document.getElementById('slots_input');
     var item_amount_input = document.getElementById('amount_input');
+    var lore_input = document.getElementById('lore_input');
+    var name_input = document.getElementById('name_input');
 
     slots_input.addEventListener('input', updateMenuSlots);
     item_amount_input.addEventListener('input', updateItemAmount);
+    lore_input.addEventListener('input', () => {
+        setItemLore(document.querySelector('.active-slot'), lore_input.value);
+    });
+    name_input.addEventListener('input', () => {
+        setItemName(document.querySelector('.active-slot'), name_input.value);
+    });
 }
