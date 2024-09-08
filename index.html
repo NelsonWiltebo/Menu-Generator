@@ -13,9 +13,8 @@
 <body>
     <nav>
         <ul class="nav-link">
-            <li><button>File</button></li>
-            <li><button>Edit</button></li>
-            <li><button>Image</button></li>
+            <li><button id="export_button">Export</button></li>
+            <li><button id="open_button">Open</button></li>
         </ul>
     </nav>
     <div id="main">
@@ -44,14 +43,22 @@
                     <i><embed src="images/error_icon.svg"></i>
                     <span>Error</span>
                 </p>
+                <br>
+                <label for="slots_input">Filling<br></label>
+                <br>
+                <div id="menu_filling_input">
+
+                </div>
             </div>
-            <div class="container" id="item_browser" onclick="loadItemImages()">
+            <div class="container" id="item_browser">
                 <div class="container-header">
                     <h2>Item Browser</h2>
                 </div>
                 <hr>
+                <div id="item_container-search-div">
+                    <input id="item_container-search" type="text" placeholder="Search...">
+                </div>
                 <div id="item_container">
-
                 </div>
             </div>
         </div>

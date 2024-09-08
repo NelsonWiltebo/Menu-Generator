@@ -187,6 +187,17 @@ nav {
     border-radius: 1px;
 }
 
+#item_container-search-div {
+    margin-top: -10px;
+    top: -10px;
+    position: sticky;
+    margin-bottom: 20px;
+}
+
+#item_container-search {
+    width: calc(100% - 20px)
+}
+
 .sidebar input:invalid+.error_message {
     display: block;
 }
@@ -229,6 +240,7 @@ nav {
     height: 40vh;
     min-width: 275px;
     min-height: 150px;
+    z-index: 1;
     /* Set a minimum height */
 }
 
@@ -248,10 +260,27 @@ nav {
     gap: 14px;
 }
 
+#menu_filling_input {
+    width: 75px;
+    height: 75px;
+    outline: 2px solid hsl(223, 7%, 35%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#menu_filling_input:only-child {
+    pointer-events: none;
+}
+
+#menu_filling_input .item:hover {
+    cursor: pointer;
+}
+
 #item_container .item {
     width: 75px;
     height: 75px;
-    background-color: hsl(220, 7%, 22%);
     outline: 2px solid hsl(223, 7%, 35%);
     border-radius: 10px;
     display: flex;
@@ -260,12 +289,34 @@ nav {
     cursor: pointer;
 }
 
+.item img {
+    pointer-events: none;
+    background: transparent;
+}
+
+.item_slot .item {
+    pointer-events: none;
+    width: 48px;
+    height: 48px;
+}
+
 .item_slot {
     position: relative;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.fill {
+    pointer-events: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.item_slot:has(> .fill) {
+    cursor: default;
 }
 
 .item_slot img {
@@ -358,14 +409,18 @@ nav {
     text-shadow: 2.5px 2.5px #3e3e3e;
 }
 
+#tooltip-div p span {
+    font-family: 'Minecraft Regular', sans-serif;
+}
+
 #tooltip-div::before {
     content: '';
     position: absolute;
     top: 3px;
     left: 3px;
     right: 3px;
-    bottom: 3px; 
-    background: linear-gradient(to bottom, hsl(264, 90%, 25%, 0.5), hsl(268, 76%, 15%, 0.5));
+    bottom: 3px;
+    background: linear-gradient(to bottom, hsl(264, 90%, 30%, 0.5), hsl(264, 90%, 20%, 0.5));
     z-index: -1;
     padding: 3px; /* Creates spacing for the border effect */
     -webkit-mask: 
@@ -377,4 +432,4 @@ nav {
     mask-composite: exclude;
     -webkit-mask-composite: destination-out;
     pointer-events: none; /* So it doesn't interfere with clicking */
-  }
+}
