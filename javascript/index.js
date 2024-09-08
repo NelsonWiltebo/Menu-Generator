@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var item_row = svg.querySelector('.item_row');
 
         addItemSlots(item_row.querySelectorAll('foreignObject'));
-        setMenuName("Menu");
+        setMenuTitle("Menu");
     });
     loadItemImages();
 });
@@ -92,12 +92,47 @@ function setInventorySlots(amount) {
     }
     moveSvgGroupTo(bottom_border, svg.getBBox().x, svg.getBBox().y + top_border.getBBox().height + item_row.getBBox().height * svg.querySelectorAll('.item_row').length - 2);
 
+    if (menuFilling) {
+        setMenuFilling(menuFilling.dataset.material);
+    }
+
     let svgWidth = parseFloat(svg.getAttribute('width'));
     let newHeight = svg.getBBox().height;
     svg.setAttribute('height', newHeight);
 
     // Update the viewBox to accommodate the new height
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
+}
+
+function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip) {
+    element.id = crypto.randomUUID();
+
+    element.dataset.material = material;
+
+    if (!element.dataset.lore) {
+        element.dataset.lore = JSON.stringify(lore);
+    }
+    if (!element.dataset.name) {
+        setItemName(element, name);
+    }
+    if (!element.dataset.amount) {
+        element.dataset.amount = amount;
+    }
+    if (!element.dataset.hide_attributes) {
+        element.dataset.hide_attributes = hideAttributes.toString();
+    }
+    if (!element.dataset.glint) {
+        element.dataset.glint = glint.toString();
+    }
+    if (!element.dataset.hide_tooltip) {
+        element.dataset.hide_tooltip = hideTooltip.toString();
+    }
+
+    if (element.querySelector('.item-slot-amount') == null) {
+        const amount = document.createElement('span');
+        amount.classList.add('item-slot-amount');
+        element.appendChild(amount);
+    }
 }
 
 function addItemSlots(foreignObjects) {
@@ -169,32 +204,14 @@ function addItemSlots(foreignObjects) {
             item.id = crypto.randomUUID();
 
             let material = item.querySelector('img').alt;
-            item.dataset.material = material.substring(0, material.lastIndexOf('.')).toUpperCase();
 
-            if (!item.dataset.lore) {
-                item.dataset.lore = '[""]';
-            }
-            if (!item.dataset.name) {
-                setItemName(item, 'Icon');
-            }
-            if (!item.dataset.amount) {
-                item.dataset.amount = 1;
-            }
-            if (!item.dataset.hide_attributes) {
-                item.dataset.hide_attributes = 'false';
-            }
-            if (!item.dataset.glint) {
-                item.dataset.glint = 'false';
-            }
-            if (!item.dataset.hide_tooltip) {
-                item.dataset.hide_tooltip = 'false';
-            }
-
-            if (item.querySelector('.item-slot-amount') == null) {
-                const amount = document.createElement('span');
-                amount.classList.add('item-slot-amount');
-                item.appendChild(amount);
-            }
+            addItemProperties(item, material.substring(0, material.lastIndexOf('.')).toUpperCase(),
+                [],
+                'Icon',
+                1,
+                false,
+                false,
+                false);
 
             draggedElement.style.opacity = 1;
 
@@ -255,7 +272,6 @@ function itemSlotClick(target) {
         element.classList.remove('active-slot');
     });
     target.classList.add('active-slot');
-    console.log(target.querySelector('.item').dataset.material);
     openSlotCustomizer(target);
 }
 
@@ -269,6 +285,7 @@ function openSlotCustomizer(target) {
     right_sidebar.querySelector('#hide_attributes').checked = target.querySelector('.item').dataset.hide_attributes === "true";
     right_sidebar.querySelector('#glint_input').checked = target.querySelector('.item').dataset.glint === "true";
     right_sidebar.querySelector('#hide_tooltip').checked = target.querySelector('.item').dataset.hide_tooltip === "true";
+    right_sidebar.querySelector('#item_id_showcase').querySelector('span').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
 }
 
 function closeSlotCustomizer() {
@@ -303,14 +320,7 @@ function moveSvgGroupTo(group, targetX, targetY) {
     });
 }
 
-function updateMenuTitle() {
-    var input = document.querySelector('.left-sidebar #title_input')
-    var value = input.value;
-
-    setMenuName(value);
-}
-
-function setMenuName(value) {
+function setMenuTitle(value) {
     var inventory = document.getElementById('inventory-texture');
     var embed = inventory.querySelector('embed');
 
@@ -326,9 +336,13 @@ function setMenuName(value) {
     }
 }
 
-function updateMenuSlots() {
+function updateMenuSlots(value = null) {
     var input = document.getElementById('slots_input');
-    var value = input.value;
+    if (value != null) {
+        input.value = value;
+    } else {
+        value = input.value;
+    }
 
     var errorText = document.querySelector('#slots_error span');
     if (value < 9) {
@@ -403,6 +417,8 @@ function setItemName(element, name) {
         name = 'Icon';
     }
     element.dataset.name = name;
+    const item_id_showcase = document.getElementById('item_id_showcase');
+    item_id_showcase.querySelector('span').innerHTML = createIdFromString(name);
     setTooltipText(element.dataset.name, element.dataset.lore);
 }
 
@@ -419,6 +435,7 @@ function itemSearch(value) {
     })
 }
 
+let copyTime;
 function setupListener() {
     var slots_input = document.getElementById('slots_input');
     var item_amount_input = document.getElementById('amount_input');
@@ -428,8 +445,29 @@ function setupListener() {
     var hide_attributes_input = document.getElementById('hide_attributes');
     var glint_input = document.getElementById('glint_input');
     var hide_tooltip = document.getElementById('hide_tooltip');
+    var title_input = document.getElementById('title_input');
+    var item_id_showcase = document.getElementById('item_id_showcase');
 
-    slots_input.addEventListener('input', updateMenuSlots);
+    item_id_showcase.addEventListener('click', () => {
+        const copy_icon = item_id_showcase.querySelector('i');
+        copy_icon.querySelector('span').innerHTML = 'Copied';
+        copy_icon.querySelector('embed').src = '../images/check_icon.svg';
+        const id = item_id_showcase.querySelector('#item_id').innerHTML;
+        navigator.clipboard.writeText(id);
+        if(copyTime) {
+            clearTimeout(copyTime);
+        }
+        copyTime = setTimeout(() => {
+            copy_icon.querySelector('span').innerHTML = 'Copy';
+            copy_icon.querySelector('embed').src = 'images/copy_icon.svg';
+        }, 2000);
+    })
+    title_input.addEventListener('input', () => {
+        setMenuTitle(title_input.value);
+    });
+    slots_input.addEventListener('input', () => {
+        updateMenuSlots();
+    });
     item_amount_input.addEventListener('input', updateItemAmount);
     lore_input.addEventListener('input', () => {
         setItemLore(document.querySelector('.active-slot').querySelector('.item'), lore_input.value);
@@ -458,29 +496,28 @@ function setupListener() {
         e.preventDefault();
 
         const draggedElementId = e.dataTransfer.getData('text');
-        const draggedElement = document.getElementById(draggedElementId).cloneNode(true);
-        if (menu_filling_input.querySelector('.item')) {
-            menu_filling_input.querySelector('.item').remove();
-        }
-        draggedElement.dataset.material = e.dataTransfer.getData('text').toUpperCase();
-        setMenuFilling(draggedElement.dataset.material);
-        menu_filling_input.appendChild(draggedElement);
-
-        draggedElement.style.opacity = 1;
+        updateMenuFilling(draggedElementId);
     });
     menu_filling_input.addEventListener('click', () => {
         menu_filling_input.childNodes.forEach(element => {
-            element.remove();
+            updateMenuFilling(null);
             removeMenuFilling();
         })
     });
     document.getElementById('export_button').addEventListener('click', (e) => {
         createJsonFile();
     });
+    document.getElementById('open_file_input').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        openMenuFile(file);
+    });
 }
 
 let menuFilling = null;
 function setMenuFilling(material) {
+    if (material == null) {
+        return;
+    }
     let item_browser = document.getElementById('item_container');
 
     let slots_container = document.getElementById('item_slots_container');
@@ -488,6 +525,7 @@ function setMenuFilling(material) {
     let fill = document.createElement('div');
     fill.classList = 'fill';
     fill.style.opacity = 1;
+    fill.dataset.material = material;
     let img = item_browser.querySelector(`#${material.toLowerCase()}`).querySelector('img').cloneNode(true);
     fill.appendChild(img);
 
@@ -503,6 +541,20 @@ function setMenuFilling(material) {
     });
 
     menuFilling = fill;
+}
+
+function updateMenuFilling(material) {
+    if (menu_filling_input.querySelector('.item') || material == null) {
+        menu_filling_input.querySelector('.item').remove();
+    }
+    if (material == null) {
+        return;
+    }
+    const materialElement = document.getElementById(material).cloneNode(true);
+    materialElement.style.opacity = 1;
+    materialElement.dataset.material = material;
+    setMenuFilling(materialElement.dataset.material);
+    menu_filling_input.appendChild(materialElement);
 }
 
 function removeMenuFilling() {
@@ -619,6 +671,15 @@ function convertMinecraftColorToSpan(text) {
     return result;
 }
 
+function createIdFromString(input) {
+    return input
+        .replace(/[\[\(\{][^\[\]\(\)\{\}]*[\]\)\}]\s*/g, '')  // Remove everything inside brackets and trailing space
+        .toLowerCase()                                       // Convert to lowercase
+        .replace(/[^\w\s]/g, '')                             // Remove remaining special characters
+        .replace(/\s+/g, '_')                                // Replace spaces with underscores
+        .replace(/_+$/, '');                                 // Remove trailing underscore(s)
+}
+
 function createJsonFile() {
     let fillMaterial;
     if (menuFilling) {
@@ -626,39 +687,86 @@ function createJsonFile() {
         fillMaterial = imgAlt.substring(0, imgAlt.lastIndexOf('.')).toUpperCase();
     }
     const menuData = {
-        "menu name": menu_name,
+        menuName: menu_name,
         slots: parseInt(menu_slots_amount),
-        filling: menuFilling === null ? null : fillMaterial
+        filling: menuFilling === null ? null : fillMaterial,
+        items: []
     };
+    const itemSlotsContainer = document.getElementById('item_slots_container');
+    let items = itemSlotsContainer.querySelectorAll('.item');
+    const existingIds = new Set();
+    items.forEach(item => {
+        id = createIdFromString(item.dataset.name);
 
-    // Step 2: Convert the JSON object to a JSON string
-    const jsonString = JSON.stringify(menu_name, null, 2); // The second argument is for pretty-printing
+        let uniqueId = id;
+        let counter = 1;
+        while (existingIds.has(uniqueId)) {
+            uniqueId = `${id}${counter}`;  // Append counter to make id unique
+            counter++;
+        }
 
-    // Step 3: Create a Blob from the JSON string
+        // Once a unique id is found, add it to the set of used ids
+        existingIds.add(uniqueId);
+
+        const itemData = {
+            material: item.dataset.material,
+            amount: parseInt(item.dataset.amount),
+            name: item.dataset.name,
+            lore: JSON.parse(item.dataset.lore),
+            glint: JSON.parse(item.dataset.glint),
+            hideAttributes: JSON.parse(item.dataset.hide_attributes),
+            hideTooltip: JSON.parse(item.dataset.hide_tooltip),
+            slot: parseInt(item.parentElement.dataset.slot),
+            id: uniqueId
+        }
+        menuData.items.push(itemData);
+    });
+
+    const jsonString = JSON.stringify(menuData, null, 2); // The second argument is for pretty-printing
     const blob = new Blob([jsonString], { type: "application/json" });
-
-    // Step 4: Create a link to download the Blob
     const link = document.createElement("a");
-
-    // Step 5: Set the download attribute and create a URL for the Blob
     link.href = URL.createObjectURL(blob);
     link.download = `${menu_name.toLowerCase()}.json`; // The file name for the downloaded file
 
-    // Step 6: Append the link to the document body (necessary for Firefox) and click it
     document.body.appendChild(link);
     link.click();
 
-    // Step 7: Remove the link from the document after the download
     document.body.removeChild(link);
 }
 
-function download(url) {
-    const a = document.createElement('a')
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-}
+function openMenuFile(file) {
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            try {
+                const menuData = JSON.parse(e.target.result);
 
-function openMenuFile() {
+                setMenuTitle(menuData.menuName);
+                updateMenuSlots(menuData.slots);
 
+                const itemBrowser = document.getElementById('item_container');
+                const itemSlotsContainer = document.getElementById('item_slots_container')
+                const itemSlots = Array.from(itemSlotsContainer.querySelectorAll('.item_slot'));
+                const menuItems = menuData.items;
+                menuItems.forEach(item => {
+                    let itemDiv = itemBrowser.querySelector(`#${item.material.toLowerCase()}`).cloneNode(true);
+                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip);
+                    const itemSlot = itemSlots.find(el => el.dataset.slot == item.slot);
+                    setItemAmount(itemDiv.querySelector('.item-slot-amount'), item.amount);
+                    itemSlot.appendChild(itemDiv);
+                });
+
+                updateMenuFilling(menuData.filling == null ? null : menuData.filling.toLowerCase());
+            }
+            catch (e) {
+                showPopUpError('Error parsing JSON:' + e);
+            }
+
+            reader.onerror = () => {
+                showPopUpError('Could not read file');
+            }
+        }
+
+        reader.readAsText(file);
+    }
 }

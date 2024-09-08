@@ -33,10 +33,13 @@ nav {
 }
 
 .nav-link li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 100%;
 }
 
-.nav-link button {
+.nav-link button, .nav-link label {
     display: flex;
     color: #ffffff;
     background-color: transparent;
@@ -49,7 +52,11 @@ nav {
     padding: 0 2vh;
 }
 
-.nav-link button:hover {
+.nav-link input {
+    width: fit-content;
+}
+
+.nav-link button:hover, .nav-link label:hover {
     cursor: pointer;
     background-color: #0c0c0c;
 }
@@ -145,10 +152,11 @@ nav {
 .sidebar textarea {
     background-color: #383a40;
     border: none;
-    height: 20px;
     border: 2px solid transparent;
     border-radius: 10px;
     margin-top: 10px;
+    box-sizing: border-box;
+    width: 100%;
     padding: 7px;
 }
 
@@ -194,6 +202,61 @@ nav {
     margin-bottom: 20px;
 }
 
+#name_input-div input {
+    background: transparent;
+}
+
+#name_input-div {
+    margin-top: 10px;
+    border-radius: 10px;
+    background: #383a40;
+    font-size: 14px;
+}
+
+#name_input-div p {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 7px;
+    background-color: hsl(225, 7%, 22%);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+#name_input-div i embed {
+    filter: brightness(0) saturate(100%) invert(37%) sepia(9%) saturate(300%) hue-rotate(83deg) brightness(98%) contrast(90%);
+    height: 20px;
+    width: 20px;
+}
+
+#name_input-div p:hover i {
+    visibility: visible;
+}
+
+#name_input-div i {
+    display: flex;
+    visibility: hidden;
+    margin-left: auto;
+}
+
+#name_input-div i span {
+    margin-right: 5px; 
+    text-align: center;
+}
+
+#name_input-div p * {
+    pointer-events: none;
+}
+
+#name_input-div p, #name_input-div p * {
+    font-style: normal;
+    color: #646464;
+}
+
+#name_input {
+    margin-top: 0px;
+}
+
 #item_container-search {
     width: calc(100% - 20px)
 }
@@ -218,7 +281,7 @@ nav {
 #input_checkboxes {
     display: flex;
     justify-content: space-around;
-    align-content: center;
+    align-items: center;
     flex-wrap: wrap;
     gap: 15px;
 }
@@ -268,6 +331,12 @@ nav {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#menu_filling_input .item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #menu_filling_input:only-child {
@@ -346,7 +415,7 @@ nav {
     border: 2px solid #cc3333;
     width: fit-content;
     border-radius: 100vh;
-    transform: translateY(-20px);
+    transform: translateX(-50%) translateY(-20px);
     background-color: #383a40;
     display: block;
     visibility: hidden;
@@ -357,7 +426,7 @@ nav {
 
 #pop-up-error.open {
     visibility: visible;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
     /* Transform happens instantly */
     transition: opacity 0.2s ease, transform 0.1s ease;
     /* Apply transition on both opacity and transform on open */

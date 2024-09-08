@@ -14,7 +14,10 @@
     <nav>
         <ul class="nav-link">
             <li><button id="export_button">Export</button></li>
-            <li><button id="open_button">Open</button></li>
+            <li>
+                <label for="open_file_input">Open</label>
+                <input type="file" id="open_file_input" hidden accept=".json">
+            </li>
         </ul>
     </nav>
     <div id="main">
@@ -33,8 +36,7 @@
                 </div>
                 <hr>
                 <label for="title_input">Title<br></label>
-                <input type="text" id="title_input" name="title_input" placeholder="Enter title" oninput="updateMenuTitle()"
-                    maxlength="50">
+                <input type="text" id="title_input" name="title_input" placeholder="Enter title" maxlength="50">
                 <br>
                 <label for="slots_input">Slots<br></label>
                 <input type="number" id="slots_input" name="slots_input" placeholder="Enter amount of slots" min="9"
@@ -71,7 +73,13 @@
                 </div>
                 <hr>
                 <label for="name_input">Item Name<br></label>
-                <input type="text" id="name_input" name="name_input" placeholder="Enter name" maxlength="50">
+                <div id="name_input-div">
+                    <input type="text" id="name_input" name="name_input" placeholder="Enter name" maxlength="50">
+                    <p id="item_id_showcase">
+                        id: <span style="margin-left: 5px;" id="item_id"></span>
+                        <i><span>Copy</span><embed src="images/copy_icon.svg"></i>
+                    </p>
+                </div>
                 <br>
                 <label for="amount_input">Amount<br></label>
                 <input type="number" id="amount_input" name="amount_input" placeholder="Enter item amount" min="1"
