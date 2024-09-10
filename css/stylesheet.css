@@ -149,7 +149,8 @@ nav {
 }
 
 .sidebar input,
-.sidebar textarea {
+.sidebar textarea,
+.sidebar select {
     background-color: #383a40;
     border: none;
     border: 2px solid transparent;
@@ -202,18 +203,19 @@ nav {
     margin-bottom: 20px;
 }
 
-#name_input-div input {
+.input_with_id_holder input {
     background: transparent;
 }
 
-#name_input-div {
+.input_with_id_holder {
     margin-top: 10px;
     border-radius: 10px;
     background: #383a40;
     font-size: 14px;
 }
 
-#name_input-div p {
+.input_with_id_holder p {
+    content: 'id: ';
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -223,37 +225,41 @@ nav {
     border-bottom-right-radius: 10px;
 }
 
-#name_input-div i embed {
+.input_with_id_holder p::before {
+    content: 'id: ';
+}
+
+.input_with_id_holder i embed {
     filter: brightness(0) saturate(100%) invert(37%) sepia(9%) saturate(300%) hue-rotate(83deg) brightness(98%) contrast(90%);
     height: 20px;
     width: 20px;
 }
 
-#name_input-div p:hover i {
+.input_with_id_holder p:hover i {
     visibility: visible;
 }
 
-#name_input-div i {
+.input_with_id_holder i {
     display: flex;
     visibility: hidden;
     margin-left: auto;
 }
 
-#name_input-div i span {
+.input_with_id_holder i span {
     margin-right: 5px; 
     text-align: center;
 }
 
-#name_input-div p * {
+.input_with_id_holder p * {
     pointer-events: none;
 }
 
-#name_input-div p, #name_input-div p * {
+.input_with_id_holder p, .input_with_id_holder p * {
     font-style: normal;
     color: #646464;
 }
 
-#name_input {
+.input_with_id_holder input {
     margin-top: 0px;
 }
 
@@ -358,15 +364,46 @@ nav {
     cursor: pointer;
 }
 
+.item::before {
+    position: absolute;
+    content: '';
+    display: block;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.item[data-render-type="global"]::before {
+    background-color: hsl(0, 60%, 50%, 0.75);
+}
+
+.item[data-render-type="child"]::before {
+    z-index: 1;
+    opacity: 0.5;
+    background: repeating-linear-gradient(
+        135deg,
+        hsla(0, 0%, 100%, 0.75),
+        hsla(0, 0%, 100%, 0.75) 10px,
+        hsl(0, 0%, 50%, 0.75) 10px,
+        hsl(0, 0%, 50%, 0.75) 20px
+      );;
+}
+
 .item img {
     pointer-events: none;
     background: transparent;
 }
 
 .item_slot .item {
+    position: relative;
     pointer-events: none;
     width: 48px;
     height: 48px;
+    z-index: 1;
 }
 
 .item_slot {

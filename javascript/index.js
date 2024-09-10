@@ -4,7 +4,6 @@ let menu_slots_amount;
 document.addEventListener('DOMContentLoaded', () => {
     var inventory = document.getElementById('inventory-texture');
     inventory.querySelector('embed').addEventListener('load', () => {
-        setupListener()
         setInventorySlots(9)
 
         var inventory = document.getElementById('inventory');
@@ -17,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         addItemSlots(item_row.querySelectorAll('foreignObject'));
         setMenuTitle("Menu");
+        setupListener();
     });
     loadItemImages();
 });
@@ -104,7 +104,7 @@ function setInventorySlots(amount) {
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
 }
 
-function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture) {
+function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture, renderType) {
     element.id = crypto.randomUUID();
 
     element.dataset.material = material;
@@ -118,6 +118,9 @@ function addItemProperties(element, material, lore, name, amount, hideAttributes
     if (!element.dataset.amount) {
         element.dataset.amount = amount;
     }
+    if (!element.dataset.renderType) {
+        element.dataset.renderType = renderType;
+    }
     if (!element.dataset.hide_attributes) {
         element.dataset.hide_attributes = hideAttributes.toString();
     }
@@ -127,8 +130,9 @@ function addItemProperties(element, material, lore, name, amount, hideAttributes
     if (!element.dataset.hide_tooltip) {
         element.dataset.hide_tooltip = hideTooltip.toString();
     }
-    if(material.toUpperCase() == 'PLAYER_HEAD' && !element.dataset.headTexture) {
-        element.dataset.headTexture = headTexture;
+    if (material.toUpperCase() === 'PLAYER_HEAD') {
+        // If headTexture is null or undefined, set it to the string "null", otherwise set it to its value
+        element.dataset.headTexture = headTexture === null || headTexture === undefined || headTexture === '' ? null : headTexture;
     }
 
     if (element.querySelector('.item-slot-amount') == null) {
@@ -208,14 +212,16 @@ function addItemSlots(foreignObjects) {
 
             let material = item.querySelector('img').alt;
 
-            addItemProperties(item, material.substring(0, material.lastIndexOf('.')).toUpperCase(),
+            addItemProperties(item,
+                material.substring(0, material.lastIndexOf('.')).toUpperCase(),
                 [],
-                'Icon',
+                '',
                 1,
                 false,
                 false,
                 false,
-                null);
+                null,
+                'unset');
 
             draggedElement.style.opacity = 1;
 
@@ -286,14 +292,26 @@ function openSlotCustomizer(target) {
     right_sidebar.querySelector('#amount_input').value = target.querySelector('.item').dataset.amount;
     right_sidebar.querySelector('#lore_input').value = JSON.parse(target.querySelector('.item').dataset.lore).join('\n');
     right_sidebar.querySelector('#name_input').value = target.querySelector('.item').dataset.name;
+    document.getElementById('id_showcase').querySelector('#item_id').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
     right_sidebar.querySelector('#hide_attributes').checked = target.querySelector('.item').dataset.hide_attributes === "true";
     right_sidebar.querySelector('#glint_input').checked = target.querySelector('.item').dataset.glint === "true";
     right_sidebar.querySelector('#hide_tooltip').checked = target.querySelector('.item').dataset.hide_tooltip === "true";
-    right_sidebar.querySelector('#item_id_showcase').querySelector('span').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
-    if(target.querySelector('.item').dataset.material == 'PLAYER_HEAD') {
+    right_sidebar.querySelector('#player_head_input').value = target.querySelector('.item').dataset.headTexture;
+    if (target.querySelector('.item').dataset.material == 'PLAYER_HEAD') {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'block';
     } else {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'none';
+    }
+    switch (target.querySelector('.item').dataset.renderType) {
+        case 'unset':
+            right_sidebar.querySelector('#item_type').selectedIndex = 0;
+            break;
+        case 'global':
+            right_sidebar.querySelector('#item_type').selectedIndex = 1;
+            break;
+        case 'child':
+            right_sidebar.querySelector('#item_type').selectedIndex = 2;
+            break;
     }
 }
 
@@ -398,6 +416,9 @@ function setItemLore(element, lore) {
 
 function setTooltipText(name, lore) {
     let tooltip = document.getElementById('tooltip-div');
+    if (name == '') {
+        name = 'Name';
+    }
 
     let item_name = tooltip.querySelector('#item_name');
     item_name.innerHTML = convertMinecraftColorToSpan(name);
@@ -422,12 +443,7 @@ function setTooltipText(name, lore) {
 }
 
 function setItemName(element, name) {
-    if (name == '') {
-        name = 'Icon';
-    }
     element.dataset.name = name;
-    const item_id_showcase = document.getElementById('item_id_showcase');
-    item_id_showcase.querySelector('span').innerHTML = createIdFromString(name);
     setTooltipText(element.dataset.name, element.dataset.lore);
 }
 
@@ -455,27 +471,43 @@ function setupListener() {
     var glint_input = document.getElementById('glint_input');
     var hide_tooltip = document.getElementById('hide_tooltip');
     var title_input = document.getElementById('title_input');
-    var item_id_showcase = document.getElementById('item_id_showcase');
-    var player_head_input = document.getElementById('player_head_input')
+    var player_head_input = document.getElementById('player_head_input');
+
+    var inputWithIDHolders = document.querySelectorAll('.input_with_id_holder');
+
+    inputWithIDHolders.forEach(element => {
+        element.querySelector('input').addEventListener('input', (e) => {
+            const id_showcase = element.querySelector('#id_showcase');
+            id_showcase.querySelector('span').innerHTML = createIdFromString(e.target.value);
+        });
+        const copy_icon = element.querySelector('i');
+        element.querySelector('#id_showcase').addEventListener('click', (e) => {
+            copy_icon.querySelector('span').innerHTML = 'Copied';
+            copy_icon.querySelector('embed').src = '../images/check_icon.svg';
+            const id = e.target.querySelector('#item_id').innerHTML;
+            navigator.clipboard.writeText(`"${id}"`);
+            if (copyTime) {
+                clearTimeout(copyTime);
+            }
+            copyTime = setTimeout(() => {
+                copy_icon.querySelector('span').innerHTML = 'Copy';
+                copy_icon.querySelector('embed').src = 'images/copy_icon.svg';
+            }, 2000);
+        });
+        element.querySelector('#id_showcase').addEventListener('mouseleave', (e) => {
+            clearTimeout(copyTime);
+            copy_icon.querySelector('span').innerHTML = 'Copy';
+            copy_icon.querySelector('embed').src = 'images/copy_icon.svg';
+        });
+    });
 
     player_head_input.addEventListener('input', (e) => {
         const item = document.querySelector('.active-slot').querySelector('.item');
         item.dataset.headTexture = e.target.value;
-    });
-    item_id_showcase.addEventListener('click', (e) => {
-        const copy_icon = e.target.querySelector('i');
-        copy_icon.querySelector('span').innerHTML = 'Copied';
-        copy_icon.querySelector('embed').src = '../images/check_icon.svg';
-        const id = e.target.querySelector('#item_id').innerHTML;
-        navigator.clipboard.writeText(id);
-        if(copyTime) {
-            clearTimeout(copyTime);
+        if (e.target.value == '') {
+            item.dataset.headTexture = null;
         }
-        copyTime = setTimeout(() => {
-            copy_icon.querySelector('span').innerHTML = 'Copy';
-            copy_icon.querySelector('embed').src = 'images/copy_icon.svg';
-        }, 2000);
-    })
+    });
     title_input.addEventListener('input', (e) => {
         setMenuTitle(e.target.value);
     });
@@ -524,6 +556,19 @@ function setupListener() {
     document.getElementById('open_file_input').addEventListener('change', (e) => {
         const file = e.target.files[0];
         openMenuFile(file);
+    });
+    document.getElementById('item_type').addEventListener('input', (e) => {
+        switch(e.target.selectedIndex) {
+            case 0:
+                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'unset';
+                break;
+            case 1:
+                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'global';
+                break;
+            case 2:
+                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'child';
+                break;
+        }
     });
 }
 
@@ -687,6 +732,7 @@ function convertMinecraftColorToSpan(text) {
 
 function createIdFromString(input) {
     return input
+        .replace(/§./g, '')
         .replace(/[\[\(\{][^\[\]\(\)\{\}]*[\]\)\}]\s*/g, '')  // Remove everything inside brackets and trailing space
         .toLowerCase()                                       // Convert to lowercase
         .replace(/[^\w\s]/g, '')                             // Remove remaining special characters
@@ -731,10 +777,11 @@ function createJsonFile() {
             hideAttributes: JSON.parse(item.dataset.hide_attributes),
             hideTooltip: JSON.parse(item.dataset.hide_tooltip),
             slot: parseInt(item.parentElement.dataset.slot),
+            renderType: item.dataset.renderType,
             id: uniqueId
         }
-        if(item.dataset.material == 'PLAYER_HEADER') {
-            itemData.headTexture.push(item.dataset.headTexture)
+        if (item.dataset.material == "PLAYER_HEAD") {
+            itemData.headTexture = item.dataset.headTexture === "null" ? null : item.dataset.headTexture;
         }
         menuData.items.push(itemData);
     });
@@ -767,7 +814,7 @@ function openMenuFile(file) {
                 const menuItems = menuData.items;
                 menuItems.forEach(item => {
                     let itemDiv = itemBrowser.querySelector(`#${item.material.toLowerCase()}`).cloneNode(true);
-                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture);
+                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture, item.renderType == undefined ? 'unset' : item.renderType);
                     const itemSlot = itemSlots.find(el => el.dataset.slot == item.slot);
                     setItemAmount(itemDiv.querySelector('.item-slot-amount'), item.amount);
                     itemSlot.appendChild(itemDiv);
