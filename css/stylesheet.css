@@ -10,6 +10,7 @@ body {
     padding: 0;
     margin: 0;
     overflow: hidden;
+    scrollbar-color: hsl(0, 0%, 48%) transparent; /* Scrollbar thumb and track color */
 }
 
 nav {
@@ -311,16 +312,6 @@ nav {
     min-height: 150px;
     z-index: 1;
     /* Set a minimum height */
-}
-
-#item_browser::-webkit-scrollbar-track {
-    background: #313338;
-}
-
-#item_browser::-webkit-scrollbar-thumb {
-    background-color: hsl(220, 7%, 16%);
-    border: 3px solid #313338;
-    border-radius: 8px;
 }
 
 #item_container {

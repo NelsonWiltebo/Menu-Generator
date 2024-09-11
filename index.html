@@ -18,6 +18,7 @@
                 <label for="open_file_input">Open</label>
                 <input type="file" id="open_file_input" hidden accept=".json">
             </li>
+            <li><button id="reset_button">Reset</button></li>
         </ul>
     </nav>
     <div id="main">
@@ -89,11 +90,18 @@
                 </div>
                 <br>
                 <label for="item_type">Item Type</label>
-                <select id="item_type" style="margin-bottom: 10px;">
+                <select id="item_type">
+                    <option>Normal</option>
+                    <option>Paginated</option>
+                </select>
+                <br>
+                <label for="render_type">Render Type</label>
+                <select id="render_type">
                     <option>Unset</option>
                     <option>Global</option>
                     <option>Child</option>
                 </select>
+                <br>
                 <label for="amount_input">Amount<br></label>
                 <input type="number" id="amount_input" name="amount_input" placeholder="Enter item amount" min="1"
                     max="64">

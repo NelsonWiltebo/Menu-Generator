@@ -292,7 +292,7 @@ function openSlotCustomizer(target) {
     right_sidebar.querySelector('#amount_input').value = target.querySelector('.item').dataset.amount;
     right_sidebar.querySelector('#lore_input').value = JSON.parse(target.querySelector('.item').dataset.lore).join('\n');
     right_sidebar.querySelector('#name_input').value = target.querySelector('.item').dataset.name;
-    document.getElementById('id_showcase').querySelector('#item_id').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
+    right_sidebar.querySelector('#id_showcase').querySelector('#item_id').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
     right_sidebar.querySelector('#hide_attributes').checked = target.querySelector('.item').dataset.hide_attributes === "true";
     right_sidebar.querySelector('#glint_input').checked = target.querySelector('.item').dataset.glint === "true";
     right_sidebar.querySelector('#hide_tooltip').checked = target.querySelector('.item').dataset.hide_tooltip === "true";
@@ -304,13 +304,13 @@ function openSlotCustomizer(target) {
     }
     switch (target.querySelector('.item').dataset.renderType) {
         case 'unset':
-            right_sidebar.querySelector('#item_type').selectedIndex = 0;
+            right_sidebar.querySelector('#render_type').selectedIndex = 0;
             break;
         case 'global':
-            right_sidebar.querySelector('#item_type').selectedIndex = 1;
+            right_sidebar.querySelector('#render_type').selectedIndex = 1;
             break;
         case 'child':
-            right_sidebar.querySelector('#item_type').selectedIndex = 2;
+            right_sidebar.querySelector('#render_type').selectedIndex = 2;
             break;
     }
 }
@@ -385,6 +385,11 @@ function updateMenuSlots(value = null) {
     setInventorySlots(value)
 }
 
+function updateMenuTitle(value) {
+    document.getElementById('title_input').value = value;
+    setMenuTitle(value);
+}
+
 function updateItemAmount() {
     var input = document.getElementById('amount_input');
     var value = input.value;
@@ -410,7 +415,11 @@ function setItemAmount(element, amount) {
 }
 
 function setItemLore(element, lore) {
-    element.dataset.lore = JSON.stringify(lore.split('\n'));
+    if(lore != '') {
+        element.dataset.lore = JSON.stringify(lore.split('\n'));
+    } else {
+        element.dataset.lore = JSON.stringify([]);
+    }
     setTooltipText(element.dataset.name, element.dataset.lore);
 }
 
@@ -472,6 +481,11 @@ function setupListener() {
     var hide_tooltip = document.getElementById('hide_tooltip');
     var title_input = document.getElementById('title_input');
     var player_head_input = document.getElementById('player_head_input');
+    var reset_button = document.getElementById('reset_button');
+
+    reset_button.addEventListener('click', () => {
+        resetInventory();
+    })
 
     var inputWithIDHolders = document.querySelectorAll('.input_with_id_holder');
 
@@ -484,7 +498,7 @@ function setupListener() {
         element.querySelector('#id_showcase').addEventListener('click', (e) => {
             copy_icon.querySelector('span').innerHTML = 'Copied';
             copy_icon.querySelector('embed').src = '../images/check_icon.svg';
-            const id = e.target.querySelector('#item_id').innerHTML;
+            const id = createIdFromString(element.querySelector('input').value);
             navigator.clipboard.writeText(`"${id}"`);
             if (copyTime) {
                 clearTimeout(copyTime);
@@ -509,7 +523,7 @@ function setupListener() {
         }
     });
     title_input.addEventListener('input', (e) => {
-        setMenuTitle(e.target.value);
+        updateMenuTitle(e.target.value);
     });
     slots_input.addEventListener('input', () => {
         updateMenuSlots();
@@ -532,7 +546,7 @@ function setupListener() {
     })
     hide_tooltip.addEventListener('input', (e) => {
         document.querySelector('.active-slot').querySelector('.item').dataset.hide_tooltip = e.target.checked;
-    })
+    });
 
     var menu_filling_input = document.getElementById('menu_filling_input');
     menu_filling_input.addEventListener('dragover', (e) => {
@@ -547,7 +561,6 @@ function setupListener() {
     menu_filling_input.addEventListener('click', (e) => {
         e.target.childNodes.forEach(element => {
             updateMenuFilling(null);
-            removeMenuFilling();
         })
     });
     document.getElementById('export_button').addEventListener('click', () => {
@@ -557,8 +570,8 @@ function setupListener() {
         const file = e.target.files[0];
         openMenuFile(file);
     });
-    document.getElementById('item_type').addEventListener('input', (e) => {
-        switch(e.target.selectedIndex) {
+    document.getElementById('render_type').addEventListener('input', (e) => {
+        switch (e.target.selectedIndex) {
             case 0:
                 document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'unset';
                 break;
@@ -603,10 +616,16 @@ function setMenuFilling(material) {
 }
 
 function updateMenuFilling(material) {
-    if (menu_filling_input.querySelector('.item') || material == null) {
-        menu_filling_input.querySelector('.item').remove();
-    }
     if (material == null) {
+        if (menu_filling_input.querySelector('.item')) {
+            menu_filling_input.querySelector('.item').remove();
+        }
+        let slots_container = document.getElementById('item_slots_container');
+        menuFilling = null;
+
+        slots_container.querySelectorAll('.fill').forEach(slot => {
+            slot.remove();
+        });
         return;
     }
     const materialElement = document.getElementById(material).cloneNode(true);
@@ -614,15 +633,6 @@ function updateMenuFilling(material) {
     materialElement.dataset.material = material;
     setMenuFilling(materialElement.dataset.material);
     menu_filling_input.appendChild(materialElement);
-}
-
-function removeMenuFilling() {
-    let slots_container = document.getElementById('item_slots_container');
-    menuFilling = null;
-
-    slots_container.querySelectorAll('.fill').forEach(slot => {
-        slot.remove();
-    });
 }
 
 const colors = new Map();
@@ -798,14 +808,33 @@ function createJsonFile() {
     document.body.removeChild(link);
 }
 
+function resetInventory() {
+    updateMenuTitle('');
+    setMenuTitle('Menu');
+    updateMenuSlots('');
+    setInventorySlots(9);
+    closeSlotCustomizer();
+    const item_slots_container = document.getElementById('item_slots_container');
+    item_slots_container.querySelectorAll('.item_slot').forEach(element => {
+        element.childNodes.forEach(node => {
+            node.remove();
+        });
+    });
+
+    document.querySelector('.left-sidebar').querySelector('#id_showcase').querySelector('#item_id').innerHTML = '';
+    updateMenuFilling(null);
+}
+
 function openMenuFile(file) {
+    resetInventory();
     if (file) {
         const reader = new FileReader();
         reader.onload = function (e) {
             try {
                 const menuData = JSON.parse(e.target.result);
+                document.querySelector('.left-sidebar').querySelector('#id_showcase').querySelector('#item_id').innerHTML = createIdFromString(menuData.menuName);
 
-                setMenuTitle(menuData.menuName);
+                updateMenuTitle(menuData.menuName);
                 updateMenuSlots(menuData.slots);
 
                 const itemBrowser = document.getElementById('item_container');
