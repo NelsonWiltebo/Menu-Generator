@@ -104,7 +104,7 @@ function setInventorySlots(amount) {
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
 }
 
-function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture, renderType) {
+function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture, renderType, itemType) {
     element.id = crypto.randomUUID();
 
     element.dataset.material = material;
@@ -129,6 +129,9 @@ function addItemProperties(element, material, lore, name, amount, hideAttributes
     }
     if (!element.dataset.hide_tooltip) {
         element.dataset.hide_tooltip = hideTooltip.toString();
+    }
+    if (!element.dataset.itemType) {
+        element.dataset.itemType = itemType;
     }
     if (material.toUpperCase() === 'PLAYER_HEAD') {
         // If headTexture is null or undefined, set it to the string "null", otherwise set it to its value
@@ -221,7 +224,8 @@ function addItemSlots(foreignObjects) {
                 false,
                 false,
                 null,
-                'unset');
+                'unset',
+                'normal');
 
             draggedElement.style.opacity = 1;
 
@@ -311,6 +315,14 @@ function openSlotCustomizer(target) {
             break;
         case 'child':
             right_sidebar.querySelector('#render_type').selectedIndex = 2;
+            break;
+    }
+    switch (target.querySelector('.item').dataset.itemType) {
+        case 'normal':
+            right_sidebar.querySelector('#item_type').selectedIndex = 0;
+            break;
+        case 'paginated':
+            right_sidebar.querySelector('#item_type').selectedIndex = 1;
             break;
     }
 }
@@ -482,11 +494,14 @@ function setupListener() {
     var title_input = document.getElementById('title_input');
     var player_head_input = document.getElementById('player_head_input');
     var reset_button = document.getElementById('reset_button');
+    var item_type = document.getElementById('item_type');
 
+    item_type.addEventListener('input', (e) => {
+        document.querySelector('.active-slot').querySelector('.item').dataset.itemType = e.target.value.toLowerCase();
+    });
     reset_button.addEventListener('click', () => {
         resetInventory();
     })
-
     var inputWithIDHolders = document.querySelectorAll('.input_with_id_holder');
 
     inputWithIDHolders.forEach(element => {
@@ -571,17 +586,7 @@ function setupListener() {
         openMenuFile(file);
     });
     document.getElementById('render_type').addEventListener('input', (e) => {
-        switch (e.target.selectedIndex) {
-            case 0:
-                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'unset';
-                break;
-            case 1:
-                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'global';
-                break;
-            case 2:
-                document.querySelector('.active-slot').querySelector('.item').dataset.renderType = 'child';
-                break;
-        }
+        document.querySelector('.active-slot').querySelector('.item').dataset.renderType = e.target.value.toLowerCase();
     });
 }
 
@@ -788,6 +793,7 @@ function createJsonFile() {
             hideTooltip: JSON.parse(item.dataset.hide_tooltip),
             slot: parseInt(item.parentElement.dataset.slot),
             renderType: item.dataset.renderType,
+            itemType: item.dataset.itemType,
             id: uniqueId
         }
         if (item.dataset.material == "PLAYER_HEAD") {
@@ -843,7 +849,7 @@ function openMenuFile(file) {
                 const menuItems = menuData.items;
                 menuItems.forEach(item => {
                     let itemDiv = itemBrowser.querySelector(`#${item.material.toLowerCase()}`).cloneNode(true);
-                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture, item.renderType == undefined ? 'unset' : item.renderType);
+                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture, item.renderType == undefined ? 'unset' : item.renderType, item.itemType == undefined ? 'normal' : item.itemType);
                     const itemSlot = itemSlots.find(el => el.dataset.slot == item.slot);
                     setItemAmount(itemDiv.querySelector('.item-slot-amount'), item.amount);
                     itemSlot.appendChild(itemDiv);
