@@ -230,6 +230,39 @@ nav {
     content: 'id: ';
 }
 
+#lore_input-div #lore_input-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+}
+
+#lore_input-div #lore_input-buttons p {
+    color: #595c66;
+    font-size: 14px;
+    margin-left: auto;
+}
+
+#lore_input-div #lore_input-buttons button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+#lore_input-div #right {
+    margin-left: auto;
+}
+
+#lore_input-div #lore_input-buttons embed {
+    filter: brightness(0) saturate(100%) invert(37%) sepia(2%) saturate(2082%) hue-rotate(189deg) brightness(93%) contrast(87%);
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
 .input_with_id_holder i embed {
     filter: brightness(0) saturate(100%) invert(37%) sepia(9%) saturate(300%) hue-rotate(83deg) brightness(98%) contrast(90%);
     height: 20px;

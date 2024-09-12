@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="stylesheet" type="text/css" href="css/stylesheet.css">
     <link rel="stylesheet" type="text/css" href="fonts/font-faces.css">
-    <title>Wiltebo</title>
+    <title>Menu Generator</title>
 </head>
 
 <body>
@@ -73,7 +73,7 @@
             </div>
         </div>
 
-        <div class="sidebar right-sidebar">
+        <div class="sidebar right-sidebar" style="display: flex;">
             <div class="container" id="slot_customizer">
                 <div class="container-header">
                     <h2 class="slot_customizer-title">Slot</h2>
@@ -110,8 +110,17 @@
                     <span>Error</span>
                 </p>
                 <br>
-                <label for="lore_input">Lore</label>
-                <textarea name="lore_input" id="lore_input" placeholder="Enter lore"></textarea>
+                <div id="lore_input-div">
+                    <label for="lore_input">Lore</label>
+                    <textarea name="lore_input" id="lore_input" placeholder="Enter lore"></textarea>
+                    <div id="lore_input-buttons">
+                        <button id="left"><embed src="images/arrow_left.svg"></button>
+                        <p id="lore_page_indexes">Page 1 of 1</p>
+                        <button id="right"><embed src="images/arrow_right.svg"></button>
+                        <button id="add_page"><embed src="images/plus_icon.svg"></button>
+                        <button id="remove_page"><embed src="images/minus_icon.svg"></button>
+                    </div>
+                </div>
                 <div style="margin-top: 10px; display: none;" id="player_head_input-div">
                     <label for="player_head_input">Player Head Texture</label>
                     <input name="player_head_input" id="player_head_input" placeholder="Enter texture value"></textarea>

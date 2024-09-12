@@ -306,6 +306,7 @@ function openSlotCustomizer(target) {
     } else {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'none';
     }
+    loadLorePages(target);
     switch (target.querySelector('.item').dataset.renderType) {
         case 'unset':
             right_sidebar.querySelector('#render_type').selectedIndex = 0;
@@ -481,6 +482,36 @@ function itemSearch(value) {
     })
 }
 
+function loadLorePages(item) {
+    let currentLorePage = 0;
+    const lore_input_button_div = document.getElementById('lore_input-buttons')
+    const lore_page_text = lore_input_button_div.querySelector('#lore_page_indexes');
+    let lorePages = JSON.parse(item.dataset.lore);
+    lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
+
+    function nextLorePage() {
+        if(currentLorePage < lorePages.length - 1) {
+            currentLorePage++;
+        } else {
+            currentLorePage = 0;
+        }
+        lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
+        console.log('next page: ' + currentLorePage);
+    }
+    
+    function prevLorePage() {
+        if(currentLorePage > 0) {
+            currentLorePage--;
+        } else {
+            currentLorePage = lorePages.length - 1;
+        }
+        lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
+        console.log('prev page: ' + currentLorePage);
+    }
+}
+
+
+
 let copyTime;
 function setupListener() {
     var slots_input = document.getElementById('slots_input');
@@ -495,6 +526,15 @@ function setupListener() {
     var player_head_input = document.getElementById('player_head_input');
     var reset_button = document.getElementById('reset_button');
     var item_type = document.getElementById('item_type');
+    const lore_input_button_div = document.getElementById('lore_input-buttons')
+
+    var obj = loadLorePages()
+    lore_input_button_div.querySelector('#left').addEventListener('click', () => {
+        obj.prevLorePage();
+    })
+    lore_input_button_div.querySelector('#right').addEventListener('click', () => {
+        obj.nextLorePage();
+    })
 
     item_type.addEventListener('input', (e) => {
         document.querySelector('.active-slot').querySelector('.item').dataset.itemType = e.target.value.toLowerCase();
