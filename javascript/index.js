@@ -104,7 +104,7 @@ function setInventorySlots(amount) {
     svg.setAttribute('viewBox', `0 0 ${svgWidth} ${newHeight}`);
 }
 
-function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture, renderType, itemType) {
+function addItemProperties(element, material, lore, name, amount, hideAttributes, glint, hideTooltip, headTexture, renderType, itemType, lorePages) {
     element.id = crypto.randomUUID();
 
     element.dataset.material = material;
@@ -136,6 +136,9 @@ function addItemProperties(element, material, lore, name, amount, hideAttributes
     if (material.toUpperCase() === 'PLAYER_HEAD') {
         // If headTexture is null or undefined, set it to the string "null", otherwise set it to its value
         element.dataset.headTexture = headTexture === null || headTexture === undefined || headTexture === '' ? null : headTexture;
+    }
+    if(itemType == 'paginated') {
+        element.dataset.lorePages = lorePages;
     }
 
     if (element.querySelector('.item-slot-amount') == null) {
@@ -294,7 +297,7 @@ function openSlotCustomizer(target) {
     right_sidebar.style.display = "grid";
     right_sidebar.querySelector('.slot_customizer-title').innerHTML = `Slot #${target.dataset.slot}`;
     right_sidebar.querySelector('#amount_input').value = target.querySelector('.item').dataset.amount;
-    right_sidebar.querySelector('#lore_input').value = JSON.parse(target.querySelector('.item').dataset.lore).join('\n');
+    loadLorePages(target.querySelector('.item'));
     right_sidebar.querySelector('#name_input').value = target.querySelector('.item').dataset.name;
     right_sidebar.querySelector('#id_showcase').querySelector('#item_id').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
     right_sidebar.querySelector('#hide_attributes').checked = target.querySelector('.item').dataset.hide_attributes === "true";
@@ -306,7 +309,6 @@ function openSlotCustomizer(target) {
     } else {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'none';
     }
-    loadLorePages(target);
     switch (target.querySelector('.item').dataset.renderType) {
         case 'unset':
             right_sidebar.querySelector('#render_type').selectedIndex = 0;
@@ -433,6 +435,11 @@ function setItemLore(element, lore) {
     } else {
         element.dataset.lore = JSON.stringify([]);
     }
+    if(element.dataset.itemType == 'paginated') {
+        let lorePages = JSON.parse(element.dataset.lorePages);
+        lorePages[currentLorePage] = JSON.parse(element.dataset.lore);
+        element.dataset.lorePages = JSON.stringify(lorePages);
+    }
     setTooltipText(element.dataset.name, element.dataset.lore);
 }
 
@@ -482,35 +489,69 @@ function itemSearch(value) {
     })
 }
 
-function loadLorePages(item) {
-    let currentLorePage = 0;
+let currentLorePage = 0;
+function loadLorePages(item, pages = 0) {
+    var right_sidebar = document.querySelector('.right-sidebar');
     const lore_input_button_div = document.getElementById('lore_input-buttons')
     const lore_page_text = lore_input_button_div.querySelector('#lore_page_indexes');
-    let lorePages = JSON.parse(item.dataset.lore);
-    lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
-
-    function nextLorePage() {
-        if(currentLorePage < lorePages.length - 1) {
-            currentLorePage++;
-        } else {
-            currentLorePage = 0;
+    if(item.dataset.itemType == 'normal') {
+        if(item.dataset.lorePages) {
+            item.dataset.lore = JSON.stringify(JSON.parse(item.dataset.lorePages)[0]);
+            delete item.dataset.lorePages;
         }
-        lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
-        console.log('next page: ' + currentLorePage);
-    }
-    
-    function prevLorePage() {
-        if(currentLorePage > 0) {
-            currentLorePage--;
+        lore_input_button_div.style.display = 'none';
+    } else if(item.dataset.itemType == 'paginated') {
+        if(!item.dataset.lorePages) {
+            let lore = JSON.parse(item.dataset.lore);
+            item.dataset.lorePages = JSON.stringify([lore]);
         } else {
-            currentLorePage = lorePages.length - 1;
+            item.dataset.lore = JSON.stringify(JSON.parse(item.dataset.lorePages)[pages]);
         }
-        lorePages.innerHTML = `Page ${currentLorePage + 1} of ${lorePages.length}`
-        console.log('prev page: ' + currentLorePage);
+        lore_input_button_div.style.display = 'flex';
+        console.log(JSON.parse(item.dataset.lorePages))
+        lore_page_text.innerHTML = `Page ${currentLorePage + 1} of ${JSON.parse(item.dataset.lorePages).length}`;
     }
+    right_sidebar.querySelector('#lore_input').value = JSON.parse(item.dataset.lore).join('\n');
 }
 
+function nextLorePage(item) {
+    let lorePages = JSON.parse(item.dataset.lorePages);
+    if(currentLorePage < lorePages.length - 1) {
+        currentLorePage++;
+    } else {
+        currentLorePage = 0;
+    }
+    loadLorePages(item, currentLorePage);
+}
 
+function prevLorePage(item) {
+    let lorePages = JSON.parse(item.dataset.lorePages);
+    if(currentLorePage > 0) {
+        currentLorePage--;
+    } else {
+        currentLorePage = lorePages.length - 1;
+    }
+    loadLorePages(item, currentLorePage);
+}
+
+function addLorePage(item) {
+    let lorePages = JSON.parse(item.dataset.lorePages);
+    lorePages.push([]);
+    item.dataset.lorePages = JSON.stringify(lorePages);
+    loadLorePages(item, currentLorePage);
+}
+
+function removeLorePage(item) {
+    let lorePages = JSON.parse(item.dataset.lorePages);
+    if (lorePages.length > 1) {
+        lorePages.pop();
+        item.dataset.lorePages = JSON.stringify(lorePages);
+        if(currentLorePage > lorePages.length - 1) {
+            currentLorePage = lorePages.length - 1;
+        }
+        loadLorePages(item, currentLorePage);
+    }
+}
 
 let copyTime;
 function setupListener() {
@@ -527,17 +568,23 @@ function setupListener() {
     var reset_button = document.getElementById('reset_button');
     var item_type = document.getElementById('item_type');
     const lore_input_button_div = document.getElementById('lore_input-buttons')
+    const add_page = lore_input_button_div.querySelector('#add_page');
+    const remove_page = lore_input_button_div.querySelector('#remove_page');
 
-    var obj = loadLorePages()
-    lore_input_button_div.querySelector('#left').addEventListener('click', () => {
-        obj.prevLorePage();
+    add_page.addEventListener('click', () => addLorePage(document.querySelector('.active-slot').querySelector('.item')));
+    remove_page.addEventListener('click', () => removeLorePage(document.querySelector('.active-slot').querySelector('.item')));
+
+    lore_input_button_div.querySelector('#left').addEventListener('click', (e) => {
+        prevLorePage(document.querySelector('.active-slot').querySelector('.item'));
     })
-    lore_input_button_div.querySelector('#right').addEventListener('click', () => {
-        obj.nextLorePage();
+    lore_input_button_div.querySelector('#right').addEventListener('click', (e) => {
+        nextLorePage(document.querySelector('.active-slot').querySelector('.item'));
     })
 
     item_type.addEventListener('input', (e) => {
-        document.querySelector('.active-slot').querySelector('.item').dataset.itemType = e.target.value.toLowerCase();
+        const item = document.querySelector('.active-slot').querySelector('.item');
+        item.dataset.itemType = e.target.value.toLowerCase();
+        loadLorePages(item);
     });
     reset_button.addEventListener('click', () => {
         resetInventory();
