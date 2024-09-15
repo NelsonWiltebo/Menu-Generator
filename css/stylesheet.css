@@ -72,6 +72,7 @@ nav {
 }
 
 #inventory {
+    user-select: none;
     display: flex;
     position: absolute;
     width: 540px;
@@ -117,7 +118,7 @@ nav {
     flex-direction: column;
     position: absolute;
     gap: 25px;
-    width: 0px;
+    width: fit-content;
 }
 
 .sidebar .container {
@@ -128,7 +129,6 @@ nav {
     width: 250px;
     padding: 20px;
     border-radius: 10px;
-    margin-left: auto;
     border: 2px solid #474747;
 }
 
@@ -139,7 +139,7 @@ nav {
 
 .right-sidebar {
     top: 30px;
-    right: 320px;
+    right: 30px;
     display: none;
 }
 
@@ -228,6 +228,29 @@ nav {
 
 .input_with_id_holder p::before {
     content: 'id: ';
+}
+
+#lore_input-div label {
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+#lore_input-div label i {
+    cursor: pointer;
+    pointer-events: all;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    width: 14px;
+    filter: brightness(0) saturate(100%) invert(37%) sepia(2%) saturate(2082%) hue-rotate(189deg) brightness(93%) contrast(87%);
+}
+
+#lore_input-div label i embed {
+    pointer-events: none;
+    height: 20px;
 }
 
 #lore_input-div #lore_input-buttons {

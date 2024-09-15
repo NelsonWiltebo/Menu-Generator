@@ -137,7 +137,7 @@ function addItemProperties(element, material, lore, name, amount, hideAttributes
         // If headTexture is null or undefined, set it to the string "null", otherwise set it to its value
         element.dataset.headTexture = headTexture === null || headTexture === undefined || headTexture === '' ? null : headTexture;
     }
-    if(itemType == 'paginated') {
+    if (itemType == 'paginated') {
         element.dataset.lorePages = lorePages;
     }
 
@@ -168,7 +168,7 @@ function addItemSlots(foreignObjects) {
         });
         div.addEventListener('mousemove', (e) => {
             let item = e.target.querySelector('.item');
-            if (item && item.dataset.hide_tooltip == 'false') {
+            if (item && item.dataset.hide_tooltip == 'false' && !pinLore) {
                 let tooltip = document.getElementById('tooltip-div');
                 let dx = tooltip.parentElement.getBoundingClientRect().x;
                 let dy = tooltip.parentElement.getBoundingClientRect().y;
@@ -184,7 +184,7 @@ function addItemSlots(foreignObjects) {
         });
         div.addEventListener('mouseleave', (e) => {
             let item = e.target.querySelector('.item');
-            if (item && item.dataset.hide_tooltip == 'false') {
+            if (item && item.dataset.hide_tooltip == 'false' && !pinLore) {
                 let tooltip = document.getElementById('tooltip-div');
                 tooltip.style.display = 'none';
             }
@@ -293,23 +293,25 @@ function itemSlotClick(target) {
 }
 
 function openSlotCustomizer(target) {
+    let item = target.querySelector('.item');
     var right_sidebar = document.querySelector('.right-sidebar');
     right_sidebar.style.display = "grid";
     right_sidebar.querySelector('.slot_customizer-title').innerHTML = `Slot #${target.dataset.slot}`;
-    right_sidebar.querySelector('#amount_input').value = target.querySelector('.item').dataset.amount;
-    loadLorePages(target.querySelector('.item'));
-    right_sidebar.querySelector('#name_input').value = target.querySelector('.item').dataset.name;
-    right_sidebar.querySelector('#id_showcase').querySelector('#item_id').innerHTML = createIdFromString(target.querySelector('.item').dataset.name);
-    right_sidebar.querySelector('#hide_attributes').checked = target.querySelector('.item').dataset.hide_attributes === "true";
-    right_sidebar.querySelector('#glint_input').checked = target.querySelector('.item').dataset.glint === "true";
-    right_sidebar.querySelector('#hide_tooltip').checked = target.querySelector('.item').dataset.hide_tooltip === "true";
-    right_sidebar.querySelector('#player_head_input').value = target.querySelector('.item').dataset.headTexture;
-    if (target.querySelector('.item').dataset.material == 'PLAYER_HEAD') {
+    right_sidebar.querySelector('#amount_input').value = item.dataset.amount;
+    loadLorePages(item);
+    right_sidebar.querySelector('#name_input').value = item.dataset.name;
+    right_sidebar.querySelector('#id_showcase').querySelector('#item_id').innerHTML = createIdFromString(item.dataset.name);
+    right_sidebar.querySelector('#hide_attributes').checked = item.dataset.hide_attributes === "true";
+    right_sidebar.querySelector('#glint_input').checked = item.dataset.glint === "true";
+    right_sidebar.querySelector('#hide_tooltip').checked = item.dataset.hide_tooltip === "true";
+    right_sidebar.querySelector('#player_head_input').value = item.dataset.headTexture;
+    setTooltipText(item.dataset.name, item.dataset.lore);
+    if (item.dataset.material == 'PLAYER_HEAD') {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'block';
     } else {
         right_sidebar.querySelector('#player_head_input-div').style.display = 'none';
     }
-    switch (target.querySelector('.item').dataset.renderType) {
+    switch (item.dataset.renderType) {
         case 'unset':
             right_sidebar.querySelector('#render_type').selectedIndex = 0;
             break;
@@ -320,7 +322,7 @@ function openSlotCustomizer(target) {
             right_sidebar.querySelector('#render_type').selectedIndex = 2;
             break;
     }
-    switch (target.querySelector('.item').dataset.itemType) {
+    switch (item.dataset.itemType) {
         case 'normal':
             right_sidebar.querySelector('#item_type').selectedIndex = 0;
             break;
@@ -430,12 +432,12 @@ function setItemAmount(element, amount) {
 }
 
 function setItemLore(element, lore) {
-    if(lore != '') {
+    if (lore != '') {
         element.dataset.lore = JSON.stringify(lore.split('\n'));
     } else {
         element.dataset.lore = JSON.stringify([]);
     }
-    if(element.dataset.itemType == 'paginated') {
+    if (element.dataset.itemType == 'paginated') {
         let lorePages = JSON.parse(element.dataset.lorePages);
         lorePages[currentLorePage] = JSON.parse(element.dataset.lore);
         element.dataset.lorePages = JSON.stringify(lorePages);
@@ -494,29 +496,30 @@ function loadLorePages(item, pages = 0) {
     var right_sidebar = document.querySelector('.right-sidebar');
     const lore_input_button_div = document.getElementById('lore_input-buttons')
     const lore_page_text = lore_input_button_div.querySelector('#lore_page_indexes');
-    if(item.dataset.itemType == 'normal') {
-        if(item.dataset.lorePages) {
+    currentLorePage = pages;
+    if (item.dataset.itemType == 'normal') {
+        if (item.dataset.lorePages) {
             item.dataset.lore = JSON.stringify(JSON.parse(item.dataset.lorePages)[0]);
             delete item.dataset.lorePages;
         }
         lore_input_button_div.style.display = 'none';
-    } else if(item.dataset.itemType == 'paginated') {
-        if(!item.dataset.lorePages) {
+    } else if (item.dataset.itemType == 'paginated') {
+        if (!item.dataset.lorePages) {
             let lore = JSON.parse(item.dataset.lore);
             item.dataset.lorePages = JSON.stringify([lore]);
         } else {
             item.dataset.lore = JSON.stringify(JSON.parse(item.dataset.lorePages)[pages]);
         }
         lore_input_button_div.style.display = 'flex';
-        console.log(JSON.parse(item.dataset.lorePages))
         lore_page_text.innerHTML = `Page ${currentLorePage + 1} of ${JSON.parse(item.dataset.lorePages).length}`;
+        setTooltipText(item.dataset.name, item.dataset.lore);
     }
     right_sidebar.querySelector('#lore_input').value = JSON.parse(item.dataset.lore).join('\n');
 }
 
 function nextLorePage(item) {
     let lorePages = JSON.parse(item.dataset.lorePages);
-    if(currentLorePage < lorePages.length - 1) {
+    if (currentLorePage < lorePages.length - 1) {
         currentLorePage++;
     } else {
         currentLorePage = 0;
@@ -526,7 +529,7 @@ function nextLorePage(item) {
 
 function prevLorePage(item) {
     let lorePages = JSON.parse(item.dataset.lorePages);
-    if(currentLorePage > 0) {
+    if (currentLorePage > 0) {
         currentLorePage--;
     } else {
         currentLorePage = lorePages.length - 1;
@@ -546,7 +549,7 @@ function removeLorePage(item) {
     if (lorePages.length > 1) {
         lorePages.pop();
         item.dataset.lorePages = JSON.stringify(lorePages);
-        if(currentLorePage > lorePages.length - 1) {
+        if (currentLorePage > lorePages.length - 1) {
             currentLorePage = lorePages.length - 1;
         }
         loadLorePages(item, currentLorePage);
@@ -554,6 +557,7 @@ function removeLorePage(item) {
 }
 
 let copyTime;
+let pinLore = false;
 function setupListener() {
     var slots_input = document.getElementById('slots_input');
     var item_amount_input = document.getElementById('amount_input');
@@ -570,6 +574,24 @@ function setupListener() {
     const lore_input_button_div = document.getElementById('lore_input-buttons')
     const add_page = lore_input_button_div.querySelector('#add_page');
     const remove_page = lore_input_button_div.querySelector('#remove_page');
+    var pin_lore = document.getElementById('pin_lore');
+    const leftSidebar = document.querySelector('.left-sidebar');
+
+    pin_lore.addEventListener('click', () => {
+        let tooltip = document.getElementById('tooltip-div');
+        pinLore = !pinLore;
+        if (pinLore) {
+            pin_lore.querySelector('embed').src = 'images/remove_pin_icon.svg'
+            tooltip.style.display = 'block';
+            tooltip.style.left = leftSidebar.querySelector('.container').getBoundingClientRect().right + 15 + 'px';
+            tooltip.style.top = '30px';
+            const activeItem = document.querySelector('.active-slot').querySelector('.item');
+            setTooltipText(activeItem.dataset.name, activeItem.dataset.lore);
+        } else if (!pinLore) {
+            pin_lore.querySelector('embed').src = 'images/pin_icon.svg'
+            tooltip.style.display = 'none';
+        }
+    })
 
     add_page.addEventListener('click', () => addLorePage(document.querySelector('.active-slot').querySelector('.item')));
     remove_page.addEventListener('click', () => removeLorePage(document.querySelector('.active-slot').querySelector('.item')));
@@ -886,6 +908,9 @@ function createJsonFile() {
         if (item.dataset.material == "PLAYER_HEAD") {
             itemData.headTexture = item.dataset.headTexture === "null" ? null : item.dataset.headTexture;
         }
+        if (item.dataset.itemType == "paginated") {
+            itemData.lorePages = JSON.parse(item.dataset.lorePages);
+        }
         menuData.items.push(itemData);
     });
 
@@ -936,7 +961,7 @@ function openMenuFile(file) {
                 const menuItems = menuData.items;
                 menuItems.forEach(item => {
                     let itemDiv = itemBrowser.querySelector(`#${item.material.toLowerCase()}`).cloneNode(true);
-                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture, item.renderType == undefined ? 'unset' : item.renderType, item.itemType == undefined ? 'normal' : item.itemType);
+                    addItemProperties(itemDiv, item.material, item.lore, item.name, item.amount, item.hideAttributes, item.glint, item.hideTooltip, item.headTexture, item.renderType == undefined ? 'unset' : item.renderType, item.itemType == undefined ? 'normal' : item.itemType, JSON.stringify(item.lorePages));
                     const itemSlot = itemSlots.find(el => el.dataset.slot == item.slot);
                     setItemAmount(itemDiv.querySelector('.item-slot-amount'), item.amount);
                     itemSlot.appendChild(itemDiv);
