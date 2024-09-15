@@ -336,6 +336,8 @@ function closeSlotCustomizer() {
     var right_sidebar = document.querySelector('.right-sidebar');
     right_sidebar.style.display = "none";
     right_sidebar.querySelector('#amount_input').value = '';
+    let tooltip = document.getElementById('tooltip-div');
+    tooltip.style.display = 'none';
 }
 
 function moveSvgGroupTo(group, targetX, targetY) {
