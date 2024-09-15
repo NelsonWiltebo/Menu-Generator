@@ -32,7 +32,7 @@ function loadItemImages() {
                 div.classList.add("item");
                 const img = document.createElement('img');
 
-                img.src = `../images/items_1.21/${file}`
+                img.src = `images/items_1.21/${file}`
                 div.id = file.substring(0, file.lastIndexOf('.'));
                 img.alt = file;
                 div.setAttribute('draggable', true);
@@ -621,7 +621,7 @@ function setupListener() {
         const copy_icon = element.querySelector('i');
         element.querySelector('#id_showcase').addEventListener('click', (e) => {
             copy_icon.querySelector('span').innerHTML = 'Copied';
-            copy_icon.querySelector('embed').src = '../images/check_icon.svg';
+            copy_icon.querySelector('embed').src = 'images/check_icon.svg';
             const id = createIdFromString(element.querySelector('input').value);
             navigator.clipboard.writeText(`"${id}"`);
             if (copyTime) {
