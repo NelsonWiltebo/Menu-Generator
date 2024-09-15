@@ -138,6 +138,7 @@ nav {
 }
 
 .right-sidebar {
+    pointer-events: none;
     top: 30px;
     right: 30px;
     display: none;
