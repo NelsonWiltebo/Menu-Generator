@@ -338,6 +338,7 @@ function closeSlotCustomizer() {
     right_sidebar.querySelector('#amount_input').value = '';
     let tooltip = document.getElementById('tooltip-div');
     tooltip.style.display = 'none';
+    pinLore = false;
 }
 
 function moveSvgGroupTo(group, targetX, targetY) {
