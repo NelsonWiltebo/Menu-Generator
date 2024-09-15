@@ -336,9 +336,9 @@ function closeSlotCustomizer() {
     var right_sidebar = document.querySelector('.right-sidebar');
     right_sidebar.style.display = "none";
     right_sidebar.querySelector('#amount_input').value = '';
-    let tooltip = document.getElementById('tooltip-div');
-    tooltip.style.display = 'none';
+    document.getElementById('tooltip-div').style.display = 'none';
     pinLore = false;
+    document.getElementById('pin_lore').querySelector('embed').src = 'images/pin_icon.svg'
 }
 
 function moveSvgGroupTo(group, targetX, targetY) {
