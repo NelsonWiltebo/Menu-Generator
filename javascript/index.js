@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadItemImages() {
-    fetch('/Paper-plugin-Menu-Generator/images/items_1.21/_item_list.json')
+    fetch('../images/items_1.21/_item_list.json')
         .then(response => response.json())
         .then(files => {
             const item_browser = document.getElementById('item_container');
