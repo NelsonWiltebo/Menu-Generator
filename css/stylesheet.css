@@ -258,6 +258,7 @@ nav {
     flex-direction: row;
     gap: 5px;
     align-items: center;
+    margin-top: 5px;
 }
 
 #lore_input-div #lore_input-buttons p {
